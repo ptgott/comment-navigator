@@ -54,13 +54,22 @@ describe('filtering comment threads', ()=>{
 
         const regexpCases: Array<regexpCase> = [
             {
-                input: "&&&&&", // An invalid case
+                input: "[][", // An invalid case
                 instances: 0
             },
             {
                 input: "/.*reply/",
                 instances: 2
-            }
+            },
+            {
+                input: ".*reply", // It shouldn't matter of there's a solidus
+                instances: 2
+            },
+            {
+                input: "", // Matches everything
+                instances: 4
+            },
+            
         ]
 
         regexpCases.forEach(rc=>{

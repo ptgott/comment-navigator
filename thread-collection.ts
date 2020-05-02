@@ -49,35 +49,50 @@ export class ThreadCollection {
      * filterTextByRegExp returns the thread elements whose final 
      * comments match the given regexp. The regexp is a standard
      * ECMAscript regexp. 
-     * @param regexp the regexp as a string. This should start and
-     * end with a solidus ("/") to please the validator.
+     * @param regexp the regexp as a string. 
+     * 
+     * Note that while the standard library RegExp constructor
+     * expects strings _not_ to include the solidus ("/"),
+     * the validation function _does_. This method will accept
+     * a string with or without a solidus pair.
      * See: https://github.com/mysticatea/regexpp/blob/3ab3e246ab990d5328aae69d3cf4013196e28301/src/validator.ts#L447
      */
     public filterByRegExp(regexp: string): Array<Element>{
+        // Handle an empty regexp as though it matches everything.
+        // No user would enter an empty filter to match nothing.
+        if (regexp == "//" || regexp == ""){
+            return this.elements;
+        }
+        
+        // regexp may include a solidus pair. trimmedRe never does.
+        let trimmedRe: string;
+        // By this point, we already know the regexp has a length
+        // of at least one.
+        if (regexp[0] == "/" && regexp[regexp.length-1]){
+            trimmedRe = regexp.match(/^\/(.*)\/$/)[1];
+        }
+        else {
+            trimmedRe = regexp;
+        }
+
         try{
             // The regexp will probably come straight
-            // from user input. As a result, we validate it first.
+            // from user input. As a result, we validate it first,
+            // making sure it includes a solidus pair.
             // This raises an error if the validation fails. See:
             // https://github.com/mysticatea/regexpp/blob/3ab3e246ab990d5328aae69d3cf4013196e28301/src/validator.ts#L438
-            validateRegExpLiteral(regexp);
+            validateRegExpLiteral(`/${trimmedRe}/`);
         }
         catch(error){
-            console.log([
+            console.error([
                 "It looks like the regular expression you used in your search",
                 "is invalid. You provided ",
-                regexp,
-                ". Maybe you forgot to add a '/' before and after the regexp?"
+                regexp
             ].join(""))
             // The caller probably can't do anything with the error, so return
             // an empty array.
             return [];
         }
-
-        // JavaScript's builtin regexp parser doesn't use solidus characters,
-        // so we remove them.
-        const trimmedRe = regexp.match(/^\/(.*)\/$/)[1]
-
-        console.log("trimmedRe", trimmedRe);
 
         const commentBodySelector = ".docos-replyview-body.docos-anchoredreplyview-body"
         // For each thread element, filter to the final text element that
@@ -89,7 +104,6 @@ export class ThreadCollection {
             }
             const lastBodyText: string = bodyTextElements[bodyTextElements.length - 1].textContent
             const re = new RegExp(trimmedRe);
-            console.log("re: %o", re);
             return re.test(lastBodyText);
         })
     }
