@@ -3,8 +3,6 @@
 ## Doing now
 
 ## Features
-- Filter comment threads by whether it's a comment/suggestion
-    (probably use two different methods, one for filtering to comments and one for filtering to suggestions)
 - Allow for multiple/chained filters
 - Count all comments by filter within the UI
 - Prev/Next buttons in the UI

@@ -84,11 +84,6 @@ export class ThreadCollection {
             validateRegExpLiteral(`/${trimmedRe}/`);
         }
         catch(error){
-            console.error([
-                "It looks like the regular expression you used in your search",
-                "is invalid. You provided ",
-                regexp
-            ].join(""))
             // The caller probably can't do anything with the error, so return
             // an empty array.
             return [];
@@ -105,6 +100,34 @@ export class ThreadCollection {
             const lastBodyText: string = bodyTextElements[bodyTextElements.length - 1].textContent
             const re = new RegExp(trimmedRe);
             return re.test(lastBodyText);
+        })
+    }
+
+    /**
+     * filterToSuggestions shows only comment threads that accompany
+     * suggestions.
+     */
+    public filterToSuggestions(): Array<Element>{
+        // This is a class of an element within the root reply of a
+        // suggestion thread.
+        const suggestionSelector = ".docos-replyview-suggest";
+        return this.elements.filter(el =>{
+            const suggestionEls: Element = el.querySelector(suggestionSelector);
+            return suggestionEls !== null;
+        })
+    }
+
+    /**
+     * filterToComments shows only comment threads that accompany
+     * comments.
+     */
+    public filterToComments(): Array<Element>{
+        // This is a class of an element within the root reply of a
+        // suggestion thread.
+        const commentSelector = "docos-replyview-comment";
+        return this.elements.filter(el =>{
+            const suggestionEls: Element = el.querySelector(commentSelector);
+            return suggestionEls !== null;
         })
     }
 

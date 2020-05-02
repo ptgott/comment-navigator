@@ -7,6 +7,11 @@ const testHTMLPath = "./test.html"
 
 describe('filtering comment threads', ()=>{
 
+    interface testCase {
+        input: string,
+        results: number
+    }
+
     // There shouldn't be any DOM manipulation here since all tests share
     // the same HTML
     beforeAll(()=>{
@@ -20,61 +25,65 @@ describe('filtering comment threads', ()=>{
     });
     
     test('filters threads by the author of the final comment', ()=>{
-        interface authorCase {
-            name: string,
-            instances: number
-        }
-
-        const authorCases: Array<authorCase> = [
+        const authorCases: Array<testCase> = [
             {
-                name: "Paul Gottschling",
-                instances: 2
+                input: "Paul Gottschling",
+                results: 2
             },
             {
-                name: "Foo Bar",
-                instances: 2
+                input: "Foo Bar",
+                results: 2
             },
             {
-                name: "Blargh Blargh",
-                instances: 0
+                input: "Blargh Blargh",
+                results: 0
             }
         ]
 
         authorCases.forEach(ac=>{
             const tc = new ThreadCollection(document.getElementsByTagName('body')[0])
-            expect(tc.filterByAuthor(ac.name).length).toEqual(ac.instances);
+            expect(tc.filterByAuthor(ac.input).length).toEqual(ac.results);
         })
     });
 
     test('filters threads by regular expression', ()=>{
-        interface regexpCase{
-            input: string,
-            instances: number
-        }
-
-        const regexpCases: Array<regexpCase> = [
+        const regexpCases: Array<testCase> = [
             {
                 input: "[][", // An invalid case
-                instances: 0
+                results: 0
             },
             {
                 input: "/.*reply/",
-                instances: 2
+                results: 2
             },
             {
                 input: ".*reply", // It shouldn't matter of there's a solidus
-                instances: 2
+                results: 2
             },
             {
                 input: "", // Matches everything
-                instances: 4
+                results: 4
             },
             
         ]
 
         regexpCases.forEach(rc=>{
             const tc = new ThreadCollection(document.getElementsByTagName('body')[0])
-            expect(tc.filterByRegExp(rc.input).length).toEqual(rc.instances);
+            expect(tc.filterByRegExp(rc.input).length).toEqual(rc.results);
         })
+    })
+
+    test('filters threads to show only suggestion threads', ()=>{
+        const sugCount = 2;
+        const col = new ThreadCollection(document.getElementsByTagName('body')[0]);
+
+        expect(col.filterToSuggestions().length).toEqual(sugCount);
+    })
+
+    test('filters threads to show only comment threads', ()=>{
+        const commentCount = 2;
+        const col = new ThreadCollection(document.getElementsByTagName('body')[0]);
+
+        expect(col.filterToComments().length).toEqual(commentCount);
     })
 })
