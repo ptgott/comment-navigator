@@ -1,6 +1,12 @@
 import {validateRegExpLiteral} from "regexpp"
 
 /**
+ * filterFunc is the signature for filters used
+ * in ThreadCollection
+ */
+type filterFunc = (input?: string)=>Array<Element>
+
+/**
  * Used to read the state of a Google Doc's comment threads 
  * from the DOM.
  * Most methods are filters, which process user input and
@@ -123,12 +129,43 @@ export class ThreadCollection {
      */
     public filterToComments(): Array<Element>{
         // This is a class of an element within the root reply of a
-        // suggestion thread.
-        const commentSelector = "docos-replyview-comment";
+        // comment thread.
+        const commentSelector = ".docos-replyview-first.docos-replyview-comment";
         return this.elements.filter(el =>{
-            const suggestionEls: Element = el.querySelector(commentSelector);
-            return suggestionEls !== null;
+            const commentEls: Element = el.querySelector(commentSelector);
+            return commentEls !== null;
         })
+    } 
+
+    /**
+     * chain handles multiple filter functions. The alternative would be to
+     * implement chaining by making the input type of each filter be
+     * the same as its output type, allowing successive method calls.
+     * But since the ThreadCollection stores its elements in a property,
+     * we can't take these elements as an input. Plus, chain() allows us
+     * to implement standard logic between each "link" of the chain.
+     * 
+     * @param filters an array of tuples. The first element
+     *  is a ThreadCollection.filter*() function. The second element is its input.
+     */
+    public chain(filters: Array<[filterFunc, any]>): Array<Element>{
+        return filters.reduce((accum, filter)=>{
+            const results: Array<Element> = filter[0].call(this,filter[1]);
+
+            // Don't find a set intersection is the accumulator is empty.
+            // Instead, populate it with the results of the filter.
+            if(accum.length == 0){
+                return results;
+            }
+
+            const newEls: Set<Element> = new Set(results);
+            const intersection: Set<Element> = new Set(
+                accum.filter(el => { return newEls.has(el)})
+            );
+
+            return [...intersection];
+
+        }, [])
     }
 
 }

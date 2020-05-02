@@ -8,7 +8,7 @@ const testHTMLPath = "./test.html"
 describe('filtering comment threads', ()=>{
 
     interface testCase {
-        input: string,
+        input: any,
         results: number
     }
 
@@ -85,5 +85,30 @@ describe('filtering comment threads', ()=>{
         const col = new ThreadCollection(document.getElementsByTagName('body')[0]);
 
         expect(col.filterToComments().length).toEqual(commentCount);
+    })
+
+    test('chains filters together', ()=>{
+        const col = new ThreadCollection(document.getElementsByTagName('body')[0]);
+        const cases: Array<testCase> = [
+            {
+                input: [
+                    [col.filterByAuthor, "Paul Gottschling"],
+                    [col.filterToSuggestions, null]
+                ],
+                results: 1
+            },
+            {
+                input: [
+                    [col.filterByAuthor, "Foo Bar"],
+                    [col.filterByRegExp, "resp.*"]
+                ],
+                results: 1
+            }
+        ]
+
+        cases.forEach(c=>{
+            expect(col.chain(c.input).length).toEqual(c.results);
+        })
+
     })
 })
