@@ -5,20 +5,44 @@ import * as fs from 'fs'
 
 const testHTMLPath = "./test.html"
 
-test('collects all comment threads in a ThreadCollection', ()=>{
+describe('filtering comment threads', ()=>{
 
-    const elCount = 4;
+    // There shouldn't be any DOM manipulation here since all tests share
+    // the same HTML
+    beforeAll(()=>{
+        document.body.innerHTML = fs.readFileSync(testHTMLPath).toString('utf8');
+    });
 
-    document.body.innerHTML = fs.readFileSync(testHTMLPath).toString('utf8');
+    test('collects all comment threads in a ThreadCollection', ()=>{    
+        const elCount = 4;
+        const coll = new ThreadCollection(document.getElementsByTagName('body')[0]);
+        expect(coll.elements.length).toEqual(elCount);
+    });
+    
+    test('filters threads by the author of the final comment', ()=>{
+        interface authorCase {
+            name: string,
+            instances: number
+        }
 
-    const coll = new ThreadCollection(document.getElementsByTagName('body')[0]);
+        const authorCases: Array<authorCase> = [
+            {
+                name: "Paul Gottschling",
+                instances: 2
+            },
+            {
+                name: "Foo Bar",
+                instances: 2
+            }
+        ]
 
-    expect(coll.elements.length).toEqual(elCount);
+        authorCases.forEach(ac=>{
+            const tc = new ThreadCollection(document.getElementsByTagName('body')[0])
+            expect(tc.filterByAuthor(ac.name).length).toEqual(ac.instances);
+        })
 
-})
-
-test('filters threads by the author of the final comment', ()=>{
-
-    // TODO: Change author names within the test HTML file so it's
-    // possible to identify different authors.
+    
+        // TODO: Change author names within the test HTML file so it's
+        // possible to identify different authors.
+    });
 })

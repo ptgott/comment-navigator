@@ -13,11 +13,12 @@ export class ThreadCollection {
     filterByAuthor(name: string): Array<Element>{
         // The class of the element whose text content indicates the author
         // of a comment.
-        const AUTHOR_CLASS = "docos-anchoredreplyview-author docos-author"
+        const AUTHOR_CLASS = ".docos-anchoredreplyview-author.docos-author";
         return this.elements.filter(el =>{
             // Assumes that the final author element in the comment thread
-            // indicates the author of the final, unasnwered comment.
-            return el.querySelector(`${AUTHOR_CLASS}:last-child`)
+            // indicates the author of the final, unanswered comment.
+            const authorElements: Array<Element> = [...el.querySelectorAll(`${AUTHOR_CLASS}`)]
+            return authorElements[authorElements.length - 1].textContent == name;
         })
     }
 
