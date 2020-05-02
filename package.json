@@ -4,16 +4,20 @@
   "description": "Tool for managing comments and suggestions in Google Docs",
   "main": "comment-nav.js",
   "scripts": {
-    "test": "npx jest *.test.ts"
+    "test": "npx --no-install jest *.test.ts"
   },
   "author": "paul.gottschling@gmail.com",
   "private": true,
   "module": "comment-nav.js",
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-typescript": "^7.9.0",
-    "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.4"
+    "@babel/core": "7.9.6",
+    "@babel/preset-env": "7.9.6",
+    "@babel/preset-typescript": "7.9.0",
+    "@types/jest": "25.2.1",
+    "@types/node": "13.13.4",
+    "jest": "25.5.4"
+  },
+  "dependencies": {
+    "regexpp": "3.1.0"
   }
 }

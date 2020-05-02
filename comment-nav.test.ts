@@ -33,6 +33,10 @@ describe('filtering comment threads', ()=>{
             {
                 name: "Foo Bar",
                 instances: 2
+            },
+            {
+                name: "Blargh Blargh",
+                instances: 0
             }
         ]
 
@@ -40,9 +44,28 @@ describe('filtering comment threads', ()=>{
             const tc = new ThreadCollection(document.getElementsByTagName('body')[0])
             expect(tc.filterByAuthor(ac.name).length).toEqual(ac.instances);
         })
-
-    
-        // TODO: Change author names within the test HTML file so it's
-        // possible to identify different authors.
     });
+
+    test('filters threads by regular expression', ()=>{
+        interface regexpCase{
+            input: string,
+            instances: number
+        }
+
+        const regexpCases: Array<regexpCase> = [
+            {
+                input: "&&&&&", // An invalid case
+                instances: 0
+            },
+            {
+                input: "/.*reply/",
+                instances: 2
+            }
+        ]
+
+        regexpCases.forEach(rc=>{
+            const tc = new ThreadCollection(document.getElementsByTagName('body')[0])
+            expect(tc.filterByRegExp(rc.input).length).toEqual(rc.instances);
+        })
+    })
 })
