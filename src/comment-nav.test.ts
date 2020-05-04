@@ -23,6 +23,14 @@ describe('filtering comment threads', ()=>{
         const coll = new ThreadCollection(document.getElementsByTagName('body')[0]);
         expect(coll.elements.length).toEqual(elCount);
     });
+
+    test('returns names of authors for the final comments within comment threads', ()=>{
+        const expected: Array<string> = ["Paul Gottschling", "Foo Bar"];
+        const coll = new ThreadCollection(document.getElementsByTagName('body')[0]);
+        const actual: Array<string> = coll.finalCommentAuthorNames();
+        expect(actual).toEqual(expect.arrayContaining(expected));
+        expect(actual.length).toEqual(expected.length);
+    })
     
     test('filters threads by the author of the final comment', ()=>{
         const authorCases: Array<testCase> = [

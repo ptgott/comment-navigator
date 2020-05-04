@@ -1,4 +1,5 @@
-import {validateRegExpLiteral} from "regexpp"
+import { validateRegExpLiteral } from "regexpp"
+import * as selectors from "./selectors"
 
 /**
  * filterFunc is the signature for filters used
@@ -9,11 +10,17 @@ type filterFunc = (input?: string)=>Array<Element>
 /**
  * Used to read the state of a Google Doc's comment threads 
  * from the DOM.
+ * 
  * Most methods are filters, which process user input and
  * return an array of comment thread elements. We should 
  * assume that if there's an error processing the input,
  * the filter will return an empty array. Bad queries lead to
  * no results, not error messages.
+ * 
+ * Note that each filter differs just enough in terms of filter
+ * criteria--and logic preceding the filter--that it doesn't make
+ * sense yet to refactor filters into a generic filterBy(selector)
+ * function. I.e. the selector has bearing on the logic of the function.
  */
 export class ThreadCollection {
 
@@ -25,11 +32,21 @@ export class ThreadCollection {
      * @param bod The body element within a Google Doc's HTML
      */
     constructor(bod: HTMLBodyElement){
-        // The class used by all suggestion and comment thread elements.
-        // All children of this element are replies.
-        const threadClass = "docos-anchoreddocoview-content"
+        this.elements = [...bod.querySelectorAll(selectors.thread)]
+    }
 
-        this.elements = [...bod.getElementsByClassName(threadClass)]
+    /**
+     * authorNames returns the names of all unique authors
+     * who've written the final comments within comment threads.
+     */
+    finalCommentAuthorNames(): Array<string> {
+        const allAuths = this.elements.map(el =>{
+            // Assumes that the final author element in the comment thread
+            // indicates the author of the final, unanswered comment.
+            const authorElements: Array<Element> = [...el.querySelectorAll(selectors.author)]
+            return authorElements[authorElements.length - 1].textContent;
+        })
+        return [...new Set(allAuths)] // Get unique names but still return an array
     }
 
     /**
@@ -39,14 +56,11 @@ export class ThreadCollection {
      * "<FIRST_NAME> <LAST_NAME"
      * @param name 
      */
-    filterByAuthor(name: string): Array<Element>{
-        // The class of the element whose text content indicates the author
-        // of a comment.
-        const AUTHOR_CLASS = ".docos-anchoredreplyview-author.docos-author";
+    public filterByAuthor(name: string): Array<Element>{
         return this.elements.filter(el =>{
             // Assumes that the final author element in the comment thread
             // indicates the author of the final, unanswered comment.
-            const authorElements: Array<Element> = [...el.querySelectorAll(`${AUTHOR_CLASS}`)]
+            const authorElements: Array<Element> = [...el.querySelectorAll(selectors.author)]
             return authorElements[authorElements.length - 1].textContent == name;
         })
     }
@@ -95,11 +109,10 @@ export class ThreadCollection {
             return [];
         }
 
-        const commentBodySelector = ".docos-replyview-body.docos-anchoredreplyview-body"
         // For each thread element, filter to the final text element that
         // matches the regexp.
         return this.elements.filter(el =>{
-            const bodyTextElements: Array<Element> = [...el.querySelectorAll(commentBodySelector)];
+            const bodyTextElements: Array<Element> = [...el.querySelectorAll(selectors.commentBody)];
             if(bodyTextElements == null || bodyTextElements.length == 0){
                 return false;
             }
@@ -114,11 +127,8 @@ export class ThreadCollection {
      * suggestions.
      */
     public filterToSuggestions(): Array<Element>{
-        // This is a class of an element within the root reply of a
-        // suggestion thread.
-        const suggestionSelector = ".docos-replyview-suggest";
         return this.elements.filter(el =>{
-            const suggestionEls: Element = el.querySelector(suggestionSelector);
+            const suggestionEls: Element = el.querySelector(selectors.suggestionThread);
             return suggestionEls !== null;
         })
     }
@@ -128,11 +138,8 @@ export class ThreadCollection {
      * comments.
      */
     public filterToComments(): Array<Element>{
-        // This is a class of an element within the root reply of a
-        // comment thread.
-        const commentSelector = ".docos-replyview-first.docos-replyview-comment";
         return this.elements.filter(el =>{
-            const commentEls: Element = el.querySelector(commentSelector);
+            const commentEls: Element = el.querySelector(selectors.commentThread);
             return commentEls !== null;
         })
     } 
@@ -147,6 +154,9 @@ export class ThreadCollection {
      * 
      * @param filters an array of tuples. The first element
      *  is a ThreadCollection.filter*() function. The second element is its input.
+     * 
+     * TODO: Rather than the ornate tuple used as a pararm, consider
+     * an array of filterFuncs called with args using bind().
      */
     public chain(filters: Array<[filterFunc, any]>): Array<Element>{
         return filters.reduce((accum, filter)=>{
