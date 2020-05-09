@@ -2,9 +2,9 @@
   "name": "google-docs-comment-nav",
   "version": "1.0.0",
   "description": "Tool for managing comments and suggestions in Google Docs",
-  "main": "comment-nav.js",
+  "main": "index.js",
   "scripts": {
-    "test": "npx --no-install jest src/*.test.ts"
+    "test": "npx --no-install jest src/**/*.test.ts"
   },
   "author": "paul.gottschling@gmail.com",
   "private": true,

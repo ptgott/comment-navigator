@@ -1,24 +1,18 @@
 # ROADMAP
 
-## Doing now
+## Doing soon
+- Start using Prettier
+- Set up code coverage reporting after tests (this will make it easier to add tests for the refactored code)
+- Write unit tests for new classes that currently lack them.
 
 ## Features
-- Add unit tests for `NavigatorComponent` functions.
-- Add a way of tracking the currently selected comment thread (use a filter based on a selector?)
-- Achieve more reusable communican between `NavigatorControl`s and the `ThreadCollection`. 
-    * Right now, each `NavigatorControl`, like `NavigatorComponent`, takes two arrays of `Element`s, designed to be the results of filtering a `ThreadCollection`.
-    * But this means that no `NaivgatorControl` knows what filters have been applied. 
-    * Further, it means that we can't apply different filters to different components. This means that we can't feed the selected thread `Element` to the prev/next buttons and the filtered `Elements` to the "filtered/total" counter.
-    * One possibility: 
-        Remove the `filter*` functions from `ThreadCollection`.
-        Extract each `filter*` function into its own class.
-        Define a class that contains a `ThreadCollection` as one property and an array of `Filters` as another property. We can apply the filters to the `NavigationControl`s that need them. The composition approach keeps things flexible.
-- Prev/Next buttons (for navigation across filtered threads) in the UI component
+- Allow the main calling context--which calls FilterCollection.use()--to read user menu selections from the UI components. Do this periodically before refreshing.
 - Slider for comment navigation. Each stop becomes another comment. Start by dispatching a click for every stop
+
+## Tooling
+- Set up test debugging with Jest and VSCode
+- Replace test.html with something that's easier to visualize in the browser. Right now you have to read the HTML and guess its correspondence to the Google Doc. Part of this is the fact that test.html doens't load external stylesheets.
+- Set up a build script with TypeScript and WebPack
 
 ## Deployment
 - Determine how to run this. Consider making it an add-on: https://developers.google.com/gsuite/add-ons/how-tos/building-editor-addons. Or make it a userscript for Tampermonkey etc.
-
-## Tooling
-- Start using Prettier
-- Set up a build script with TypeScript and WebPack

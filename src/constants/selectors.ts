@@ -1,6 +1,6 @@
 // These are various CSS selectors used within Google Docs.
 // Ideally, you should be able to fetch the relevant elements
-// by calling QuerySelectorAll with one of them.
+// by calling querySelectorAll with one of them.
 
 // The class used by all suggestion and comment thread elements.
 // All children of this element are replies.
@@ -18,5 +18,18 @@ export const commentBody: string = ".docos-replyview-body.docos-anchoredreplyvie
 export const suggestionThread: string = ".docos-replyview-suggest";
 
 // This is a class of an element within the root reply of a
-// comment thread.
+// comment thread, **used to distinguish comment threads
+// from suggestion threads**.
+// For a general comment thread, use the "thread" selector.
 export const commentThread: string = ".docos-replyview-first.docos-replyview-comment";
+
+// A comment element within a comment thread
+export const commentWithinThread: string = ".docos-replyview-comment";
+
+// The first comment in every thread, including comments indicating
+// that there's been a suggestion.
+export const rootReply: string = ".docos-docoview-rootreply";
+
+// The currently selected comment thread. Note that the element with
+// this class is two parentage levels above the thread selector.
+export const activeThread: string = ".docos-docoview-active";

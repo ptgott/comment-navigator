@@ -1,5 +1,5 @@
 import { NavigatorControl, ThreadCount } from "./navigator-control"
-import { ThreadCollection } from "./thread-collection"
+import { FiltrationRecord } from "../filter/filtration-record";
 
 /**
  * Represents the UI component for the comment navigator.
@@ -8,7 +8,7 @@ import { ThreadCollection } from "./thread-collection"
  * caller should call window.setInterval (or some other means)
  * to periodically refresh the state of the component.
  */
-export class NavigatorComponent{
+export class Navigator{
 
     /**
      * The HTML component itself.
@@ -19,9 +19,9 @@ export class NavigatorComponent{
     public element: HTMLElement;
 
     /**
-     * For rendering and refreshing, NavigatorComponent
+     * For rendering and refreshing, Navigator
      * just calls render() or refresh() for each
-     * subcomponent. NavigatorComponent doesn't know
+     * subcomponent. Navigator doesn't know
      * if its subcomponents have children.
      */
     private subcomponents: Array<NavigatorControl>;
@@ -52,22 +52,12 @@ export class NavigatorComponent{
 
     /**
      * Updates the data within element without re-rendering.
-     * @param originalThreads An array of comment thread elements prior
-     * to any filtering
-     * @param filteredThreads An array of comment threads reflecting all
-     * filters.
-     * 
-     * Components need to access both sets of comment threads to, for
-     * example, allow navigation through filtered comment threads as
-     * well as populate UI menu options with data from all available
-     * comment threads.
+     * @param fr FiltrationRecord. You'll need to apply
+     * filters before calling refresh.
      */
-    private refresh(
-        originalThreads: Array<Element>,
-        filteredThreads: Array<Element>
-        ): void {
+    public refresh(fr: FiltrationRecord): void {
         this.subcomponents.forEach(sc=>{
-            sc.refresh(originalThreads, filteredThreads);
+            sc.refresh(fr);
         })
     }
 }
