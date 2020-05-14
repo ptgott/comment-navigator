@@ -2,7 +2,6 @@
 
 ## Doing soon
 
-- Set up code coverage reporting after tests (this will make it easier to add tests for the refactored code)
 - Write unit tests for new classes that currently lack them.
 
 ## Features
@@ -13,7 +12,7 @@
 ## Tooling
 
 - Set up test debugging with Jest and VSCode
-- Replace test.html with something that's easier to visualize in the browser. Right now you have to read the HTML and guess its correspondence to the Google Doc. Part of this is the fact that test.html doens't load external stylesheets.
+- Replace test.html with something that's easier to visualize in the browser. Right now you have to read the HTML and guess its correspondence to the Google Doc. Part of this is the fact that test.html doesn't load external stylesheets.
 - Set up a build script with TypeScript and WebPack
 
 ## Deployment

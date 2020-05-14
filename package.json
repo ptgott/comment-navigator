@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx --no-install jest src/**/*.test.ts",
+    "coverage": "npx --no-install jest --collect-coverage src/**/*.test.ts && open coverage/lcov-report/index.html",
     "format": "npx prettier@2.0.5 . --write"
   },
   "author": "paul.gottschling@gmail.com",
