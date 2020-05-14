@@ -1,9 +1,10 @@
-import { ParseBodyForThreads } from "../thread/thread-collection";
+import { ParseForThreads } from "../thread/thread-collection";
 import {
   FinalCommentAuthorNameFilter,
   RegexpBodyFilter,
   SuggestionsFilter,
   CommentsFilter,
+  Filter,
 } from "./filter";
 import * as fs from "fs";
 
@@ -16,13 +17,23 @@ interface testCase {
   results: number;
 }
 
-describe("FinalCommentAuthorNameFilter", () => {
-  // There shouldn't be any DOM manipulation here since all tests share
-  // the same HTML
-  beforeAll(() => {
-    document.body.innerHTML = fs.readFileSync(testHTMLPath).toString("utf8");
-  });
+// There shouldn't be any DOM manipulation here since all tests share
+// the same HTML
+beforeAll(() => {
+  document.body.innerHTML = fs.readFileSync(testHTMLPath).toString("utf8");
+});
 
+describe("Filter", () => {
+  test("should throw an error when using directly", () => {
+    const coll = ParseForThreads(document.body);
+    const f = new Filter("");
+    expect(() => {
+      f.use(coll);
+    }).toThrowError();
+  });
+});
+
+describe("FinalCommentAuthorNameFilter", () => {
   test("filters threads by the author of the final comment", () => {
     const authorCases: Array<testCase> = [
       {
@@ -40,7 +51,7 @@ describe("FinalCommentAuthorNameFilter", () => {
     ];
 
     authorCases.forEach((ac) => {
-      const tc = ParseBodyForThreads(document.getElementsByTagName("body")[0]);
+      const tc = ParseForThreads(document.getElementsByTagName("body")[0]);
       const af = new FinalCommentAuthorNameFilter(ac.input);
       const results = af.use(tc);
       expect(results.elements.length).toEqual(ac.results);
@@ -70,7 +81,7 @@ describe("RegexpBodyFilter", () => {
     ];
 
     regexpCases.forEach((rc) => {
-      const tc = ParseBodyForThreads(document.getElementsByTagName("body")[0]);
+      const tc = ParseForThreads(document.getElementsByTagName("body")[0]);
       const f = new RegexpBodyFilter(rc.input);
       expect(f.use(tc).elements.length).toEqual(rc.results);
     });
@@ -80,7 +91,7 @@ describe("RegexpBodyFilter", () => {
 describe("SuggestionsFilter", () => {
   test("filters threads to show only suggestion threads", () => {
     const sugCount = 2;
-    const col = ParseBodyForThreads(document.getElementsByTagName("body")[0]);
+    const col = ParseForThreads(document.getElementsByTagName("body")[0]);
     const f = new SuggestionsFilter();
     expect(f.use(col).elements.length).toEqual(sugCount);
   });
@@ -89,7 +100,7 @@ describe("SuggestionsFilter", () => {
 describe("CommentsFilter", () => {
   test("filters threads to show only comment threads", () => {
     const commentCount = 2;
-    const col = ParseBodyForThreads(document.getElementsByTagName("body")[0]);
+    const col = ParseForThreads(document.getElementsByTagName("body")[0]);
     const f = new CommentsFilter();
     expect(f.use(col).elements.length).toEqual(commentCount);
   });

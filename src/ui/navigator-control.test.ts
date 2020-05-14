@@ -1,6 +1,21 @@
 import { ThreadCount } from "./navigator-control";
+import * as fs from "fs";
+import { ParseForThreads, ThreadCollection } from "../thread/thread-collection";
+import { FinalCommentAuthorNameFilter, Filter } from "../filter/filter";
+import { FiltrationRecord } from "../filter/filtration-record";
+import { FilterCollection } from "../filter/filter-collection";
+
+// This file expects you to be using Jest
 
 describe("ThreadCount", () => {
+  const testHTMLPath = "./test.html";
+
+  // There shouldn't be any DOM manipulation here since all tests share
+  // the same HTML
+  beforeAll(() => {
+    document.body.innerHTML = fs.readFileSync(testHTMLPath).toString("utf8");
+  });
+
   // So all tests can access a new ThreadCount.
   let threadCount: ThreadCount;
 
@@ -13,24 +28,22 @@ describe("ThreadCount", () => {
     expect(el.tagName).toEqual("SPAN");
   });
 
-  // TODO: We can't use dummy HTML elements for the test anymore.
-  // We'll need to use actual CommentThreads and ThreadCollections
-  // to satisfy the threadCount.refresh() interface.
-  // test('should show the ratio of filtered threads on refresh', ()=>{
-  //     const el = threadCount.render();
+  test("should show the ratio of filtered threads on refresh", () => {
+    const el = threadCount.render();
 
-  //     document.body.innerHTML = `
-  //     <p>
-  //     <p>
-  //     <p>
-  //     <p>
-  //     <p>
-  //     `
-  //     const expectedFiltered = 3;
-  //     let unfiltered = [...document.body.querySelectorAll('p')]
-  //     let filtered = [...document.body.querySelectorAll('p')].slice(0, expectedFiltered);
+    const coll = ParseForThreads(document.body);
 
-  //     threadCount.refresh(unfiltered,filtered);
-  //     expect(el.textContent).toEqual(`${filtered.length}/${unfiltered.length}`);
-  // })
+    // Regrettably, this places a tight coupling between this test
+    // and FinalCommentAuthorNameFilter.
+    // TODO: Write a more isolated version of this test.
+    const f: Filter = new FinalCommentAuthorNameFilter("Paul Gottschling");
+    const filtered: ThreadCollection = f.use(coll);
+    const expectedFiltered = 2;
+    const fr = new FiltrationRecord(coll, filtered, new FilterCollection([f]));
+
+    threadCount.refresh(fr);
+    expect(el.textContent).toEqual(
+      `${expectedFiltered}/${coll.elements.length}`
+    );
+  });
 });

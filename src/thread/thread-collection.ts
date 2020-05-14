@@ -2,14 +2,14 @@ import * as selectors from "../constants/selectors";
 import { CommentThread } from "./comment-thread";
 
 /**
- * ParseBodyForThreads is used to extract comment threads
+ * ParseForThreads is used to extract comment threads
  * from the document body. We create ThreadCollections this way
  * so we can parse the body periodically to check for updates.
  * There are other ways to create ThreadCollections too, such
  * as by using a Filter.
  * @param bod is the document body.
  */
-export function ParseBodyForThreads(bod: HTMLBodyElement): ThreadCollection {
+export function ParseForThreads(bod: HTMLElement): ThreadCollection {
   const elements: Array<Element> = [...bod.querySelectorAll(selectors.thread)];
   const threads: Array<CommentThread> = elements.map((el) => {
     return new CommentThread(el);

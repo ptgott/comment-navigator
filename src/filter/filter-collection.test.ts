@@ -1,6 +1,6 @@
 // This file assumes you're using Jest
 
-import { ParseBodyForThreads } from "../thread/thread-collection";
+import { ParseForThreads } from "../thread/thread-collection";
 import { FilterCollection } from "./filter-collection";
 import {
   FinalCommentAuthorNameFilter,
@@ -24,7 +24,7 @@ describe("FilterCollection", () => {
   });
 
   test("chains filters together", () => {
-    const threadColl = ParseBodyForThreads(
+    const threadColl = ParseForThreads(
       document.getElementsByTagName("body")[0]
     );
     const cases: Array<testCase> = [
