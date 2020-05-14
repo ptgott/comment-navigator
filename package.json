@@ -4,7 +4,8 @@
   "description": "Tool for managing comments and suggestions in Google Docs",
   "main": "index.js",
   "scripts": {
-    "test": "npx --no-install jest src/**/*.test.ts"
+    "test": "npx --no-install jest src/**/*.test.ts",
+    "format": "npx prettier@2.0.5 . --write"
   },
   "author": "paul.gottschling@gmail.com",
   "private": true,
@@ -15,7 +16,8 @@
     "@babel/preset-typescript": "7.9.0",
     "@types/jest": "25.2.1",
     "@types/node": "13.13.4",
-    "jest": "25.5.4"
+    "jest": "25.5.4",
+    "prettier": "2.0.5"
   },
   "dependencies": {
     "regexpp": "3.1.0"

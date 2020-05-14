@@ -9,27 +9,26 @@ import { FilterCollection } from "./filter-collection";
 
 // any of these other classes.
 export class FiltrationRecord {
+  public before: ThreadCollection;
+  public after: ThreadCollection;
+  public filters: FilterCollection;
 
-    public before: ThreadCollection;
-    public after: ThreadCollection;
-    public filters: FilterCollection;
-
-    /**
-     * 
-     * @param before ThreadCollection prior to applying 
-     * the filters
-     * @param after ThreadCollection after applying the
-     * filters
-     * @param filters The filters applied to "before"
-     */
-    constructor(
-        before: ThreadCollection,
-        after: ThreadCollection,
-        filters: FilterCollection
-    ){
-        // TODO: Determine whether to perform validation here
-        this.before = before;
-        this.after = after;
-        this.filters = filters;
-    }
+  /**
+   *
+   * @param before ThreadCollection prior to applying
+   * the filters
+   * @param after ThreadCollection after applying the
+   * filters
+   * @param filters The filters applied to "before"
+   */
+  constructor(
+    before: ThreadCollection,
+    after: ThreadCollection,
+    filters: FilterCollection
+  ) {
+    // TODO: Determine whether to perform validation here
+    this.before = before;
+    this.after = after;
+    this.filters = filters;
+  }
 }

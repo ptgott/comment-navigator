@@ -1,13 +1,23 @@
 {
-    "compilerOptions": {
-        "target": "ES6",
-        "noImplicitAny": true,
-        "sourceMap": false,
-        "outDir": "./js_dist",
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true
-    },
-    "include": [
-        "src/*.ts", "src/filter/filter.ts", "src/thread/thread-collection.test.ts", "src/ui/navigator.ts", "src/thread/thread-collection.ts", "src/thread/comment-thread.ts", "src/constants/selectors.ts", "src/ui/navigator-control.ts", "src/ui/navigator-control.test.ts", "src/filter/filtration-record.ts", "src/filter/filter-collection.ts"
-    ]
+  "compilerOptions": {
+    "target": "ES6",
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "outDir": "./js_dist",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/*.ts",
+    "src/filter/filter.ts",
+    "src/thread/thread-collection.test.ts",
+    "src/ui/navigator.ts",
+    "src/thread/thread-collection.ts",
+    "src/thread/comment-thread.ts",
+    "src/constants/selectors.ts",
+    "src/ui/navigator-control.ts",
+    "src/ui/navigator-control.test.ts",
+    "src/filter/filtration-record.ts",
+    "src/filter/filter-collection.ts"
+  ]
 }

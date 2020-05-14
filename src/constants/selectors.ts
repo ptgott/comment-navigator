@@ -11,7 +11,8 @@ export const thread: string = ".docos-anchoreddocoview-content";
 export const author: string = ".docos-anchoredreplyview-author.docos-author";
 
 // Comment body text
-export const commentBody: string = ".docos-replyview-body.docos-anchoredreplyview-body"
+export const commentBody: string =
+  ".docos-replyview-body.docos-anchoredreplyview-body";
 
 // This is a class of an element within the root reply of a
 // suggestion thread.
@@ -21,7 +22,8 @@ export const suggestionThread: string = ".docos-replyview-suggest";
 // comment thread, **used to distinguish comment threads
 // from suggestion threads**.
 // For a general comment thread, use the "thread" selector.
-export const commentThread: string = ".docos-replyview-first.docos-replyview-comment";
+export const commentThread: string =
+  ".docos-replyview-first.docos-replyview-comment";
 
 // A comment element within a comment thread
 export const commentWithinThread: string = ".docos-replyview-comment";
