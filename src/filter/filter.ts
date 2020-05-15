@@ -157,14 +157,11 @@ export class RegexpBodyFilter extends Filter {
       return false;
     }
 
+    // It seems like all suggestions and comments contain this element
+    // so we should be safe to assume the lenght is always > 0.
     const bodyTextElements: Array<Element> = [
       ...thread.element.querySelectorAll(selectors.commentBody),
     ];
-
-    // Is there no text to search?
-    if (bodyTextElements == null || bodyTextElements.length == 0) {
-      return false;
-    }
 
     const re = new RegExp(trimmedRe);
 

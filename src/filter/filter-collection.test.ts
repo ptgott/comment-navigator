@@ -8,22 +8,69 @@ import {
   RegexpBodyFilter,
 } from "./filter";
 import * as fs from "fs";
-
-const testHTMLPath = "./test.html";
+import {
+  MockCommentThread,
+  MockSuggestionThread,
+} from "../test-utils/mock-html";
 
 interface testCase {
   input: any;
   results: number;
 }
 
-describe("FilterCollection", () => {
-  // There shouldn't be any DOM manipulation here since all tests share
-  // the same HTML
-  beforeAll(() => {
-    document.body.innerHTML = fs.readFileSync(testHTMLPath).toString("utf8");
-  });
+// Clear the document body so we can muddy it up with each test.
+beforeEach(() => {
+  document.body.innerHTML = null;
+});
 
+describe("FilterCollection", () => {
   test("chains filters together", () => {
+    document.body.innerHTML = [
+      MockSuggestionThread({
+        author: "Foo Bar",
+        text: "This is a comment",
+        replies: [
+          {
+            author: "Fake Name",
+            text: "Fake comment",
+          },
+          {
+            author: "Blah Blah",
+            text: "This is the final response",
+          },
+        ],
+      }),
+      MockCommentThread({
+        author: "Example",
+        text: "This is a comment",
+        replies: [
+          {
+            author: "Foo Bar",
+            text: "This is a response!",
+          },
+        ],
+      }),
+      MockSuggestionThread({
+        author: "Bar Baz",
+        text: "This is a suggestion",
+        replies: [
+          {
+            author: "Blah Blah",
+            text: "Example",
+          },
+        ],
+      }),
+      MockSuggestionThread({
+        author: "Bar Baz",
+        text: "This is a suggestion",
+        replies: [
+          {
+            author: "Foo Bar",
+            text: "This is a response!",
+          },
+        ],
+      }),
+    ].join("\n");
     const threadColl = ParseForThreads(
       document.getElementsByTagName("body")[0]
     );
@@ -33,17 +80,17 @@ describe("FilterCollection", () => {
           // This test is getting zero results, but shouldn't be--
           // finalCommentAuthorNameFilter works for a thread that's
           // a single suggestion with no comments.
-          new FinalCommentAuthorNameFilter("Paul Gottschling"),
+          new FinalCommentAuthorNameFilter("Blah Blah"),
           new SuggestionsFilter(),
         ],
-        results: 1,
+        results: 2,
       },
       {
         input: [
           new FinalCommentAuthorNameFilter("Foo Bar"),
           new RegexpBodyFilter("resp.*"),
         ],
-        results: 1,
+        results: 2,
       },
     ];
 

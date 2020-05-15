@@ -1,21 +1,18 @@
 import { ThreadCount } from "./navigator-control";
-import * as fs from "fs";
 import { ParseForThreads, ThreadCollection } from "../thread/thread-collection";
 import { FinalCommentAuthorNameFilter, Filter } from "../filter/filter";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
+import { MockCommentThread } from "../test-utils/mock-html";
 
 // This file expects you to be using Jest
 
+// Clear the document body so we can muddy it up with each test.
+beforeEach(() => {
+  document.body.innerHTML = null;
+});
+
 describe("ThreadCount", () => {
-  const testHTMLPath = "./test.html";
-
-  // There shouldn't be any DOM manipulation here since all tests share
-  // the same HTML
-  beforeAll(() => {
-    document.body.innerHTML = fs.readFileSync(testHTMLPath).toString("utf8");
-  });
-
   // So all tests can access a new ThreadCount.
   let threadCount: ThreadCount;
 
@@ -29,17 +26,30 @@ describe("ThreadCount", () => {
   });
 
   test("should show the ratio of filtered threads on refresh", () => {
-    const el = threadCount.render();
+    const threads = new Array(4);
+    for (let i = 0; i < threads.length; i++) {
+      threads[i] = MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [
+          {
+            author: "Paul Gottschling",
+            text: "This is a reply",
+          },
+        ],
+      });
+    }
+    document.body.innerHTML = threads.join("\n");
 
     const coll = ParseForThreads(document.body);
-
-    // Regrettably, this places a tight coupling between this test
-    // and FinalCommentAuthorNameFilter.
-    // TODO: Write a more isolated version of this test.
-    const f: Filter = new FinalCommentAuthorNameFilter("Paul Gottschling");
-    const filtered: ThreadCollection = f.use(coll);
+    const el = threadCount.render();
     const expectedFiltered = 2;
-    const fr = new FiltrationRecord(coll, filtered, new FilterCollection([f]));
+    const filtered: ThreadCollection = new ThreadCollection(
+      coll.elements.slice(0, expectedFiltered)
+    );
+    // Don't use actual filters here--we don't need them, and this will
+    // keep the test more isolated.
+    const fr = new FiltrationRecord(coll, filtered, new FilterCollection([]));
 
     threadCount.refresh(fr);
     expect(el.textContent).toEqual(
