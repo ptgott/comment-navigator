@@ -5,6 +5,7 @@ import {
   SuggestionsFilter,
   CommentsFilter,
   Filter,
+  SelectedThreadFilter,
 } from "./filter";
 import {
   MockCommentThread,
@@ -34,9 +35,10 @@ describe("Filter", () => {
     });
     const coll = ParseForThreads(document.body);
     const f = new Filter("");
+    const err = new RegExp(".*[nN]ot [iI]mplemented.*");
     expect(() => {
       f.use(coll);
-    }).toThrowError();
+    }).toThrowError(err);
   });
 });
 
@@ -219,5 +221,44 @@ describe("CommentsFilter", () => {
     const col = ParseForThreads(document.getElementsByTagName("body")[0]);
     const f = new CommentsFilter();
     expect(f.use(col).elements.length).toEqual(commentCount);
+  });
+});
+
+describe("SelectedThreadFilter", () => {
+  test("filters threads to show those that are currently active", () => {
+    document.body.innerHTML = [
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [],
+        isActive: true,
+      }),
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockSuggestionThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [],
+        isActive: true,
+      }),
+      MockSuggestionThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [],
+        isActive: false,
+      }),
+    ].join("\n");
+
+    // In a real Google Doc, only one thread should be active at a time.
+    // Here we want to make the filter works for comments as well as
+    // suggestions.
+    const activeCount = 2;
+    const col = ParseForThreads(document.getElementsByTagName("body")[0]);
+    const f = new SelectedThreadFilter();
+    expect(f.use(col).elements.length).toEqual(activeCount);
   });
 });

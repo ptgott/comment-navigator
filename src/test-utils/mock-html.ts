@@ -13,6 +13,7 @@ export interface CommentThreadOptions {
   author: string; // First comment author
   text: string; // First comment text
   replies: Array<ChildCommentOptions>;
+  isActive?: boolean;
 }
 
 /** SuggestionThreadOptions lets you design a suggestion thread,
@@ -22,6 +23,7 @@ export interface SuggestionThreadOptions {
   author: string; // First suggestion author
   text: string; // What happened in the suggestion thread (e.g., "Delete space")
   replies: Array<ChildCommentOptions>;
+  isActive?: boolean;
 }
 
 /**
@@ -89,6 +91,7 @@ export function MockChildComment(options: ChildCommentOptions): string {
  * @param options SuggestionThreadOptions
  */
 export function MockSuggestionThread(options: SuggestionThreadOptions): string {
+  const activeClass = options.isActive == true ? "docos-docoview-active" : "";
   const concatenatedReplies: string = options.replies
     .map((reply) => {
       return MockChildComment(reply);
@@ -96,7 +99,7 @@ export function MockSuggestionThread(options: SuggestionThreadOptions): string {
     .join("\n");
 
   return `
-<div class="docos-docoview-tesla-conflict docos-anchoreddocoview docos-docoview-active" role="listitem"
+<div class="docos-docoview-tesla-conflict docos-anchoreddocoview ${activeClass}" role="listitem"
     aria-label="Comments dialog. Open comment. Author ${options.author}. ${options.replies.length} replies."
     tabindex="0" style="left: -10px; top: 165px;">
     <div class="docos-anchoreddocoview-internal">
@@ -200,6 +203,8 @@ export function MockSuggestionThread(options: SuggestionThreadOptions): string {
  * @param options CommentThreadOptions
  */
 export function MockCommentThread(options: CommentThreadOptions): string {
+  const activeClass = options.isActive == true ? "docos-docoview-active" : "";
+
   const concatenatedReplies: string = options.replies
     .map((reply) => {
       return MockChildComment(reply);
@@ -207,7 +212,7 @@ export function MockCommentThread(options: CommentThreadOptions): string {
     .join("\n");
 
   return `
-<div class="docos-docoview-tesla-conflict docos-docoview-resolve-button-visible docos-anchoreddocoview" role="listitem"
+<div class="docos-docoview-tesla-conflict docos-docoview-resolve-button-visible docos-anchoreddocoview ${activeClass}" role="listitem"
     aria-label="Comments dialog. Open comment. Author ${options.author}. ${options.replies.length} replies." tabindex="0"
     style="left: 25px; top: 105px;">
     <div class="docos-anchoreddocoview-internal">

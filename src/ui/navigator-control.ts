@@ -70,9 +70,19 @@ export class NextButton extends NavigatorControl {
 
   private element: HTMLElement;
 
+  // Allows read-only access to the target thread
+  public target(): CommentThread {
+    return this.targetThread;
+  }
+
+  // Allows read-only access to the element
+  public controlElement(): HTMLElement {
+    return this.element;
+  }
+
   public render(): HTMLElement {
     this.element = document.createElement("button");
-    this.element.addEventListener("click", (ev) => {
+    this.element.addEventListener("click", () => {
       // The clickable outer wrapper of the CommentThread element
       // is two levels of parentage up from the CommentThread element
       // and has the class ".docos-docoview-tesla-conflict"
@@ -110,6 +120,16 @@ export class PrevButton extends NavigatorControl {
   private targetThread: CommentThread;
 
   private element: HTMLElement;
+
+  // Allows read-only access to the target thread
+  public target(): CommentThread {
+    return this.targetThread;
+  }
+
+  // Allows read-only access to the element
+  public controlElement(): HTMLElement {
+    return this.element;
+  }
 
   public render(): HTMLElement {
     this.element = document.createElement("button");

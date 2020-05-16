@@ -1,4 +1,4 @@
-import { ThreadCollection, ParseForThreads } from "./thread-collection";
+import { ParseForThreads } from "./thread-collection";
 import { MockCommentThread } from "../test-utils/mock-html";
 // This a test file for use with Jest
 

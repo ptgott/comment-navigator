@@ -2,15 +2,14 @@
 
 ## Doing now
 
-## Features
+## Features/application code
 
-- Get to 100% test coverage.
 - Allow the main calling context--which calls FilterCollection.use()--to read user menu selections from the UI components. Do this periodically before refreshing.
+- Refactor `NextButton` and `PrevButton` to share an interface for navigation buttons (also refactor the tests)
 - Slider for comment navigation. Each stop becomes another comment. Start by dispatching a click for every stop
 
 ## Tooling
 
-- Set up test debugging with Jest and VSCode
 - Set up a build script with TypeScript and WebPack
 
 ## Deployment

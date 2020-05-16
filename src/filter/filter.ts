@@ -188,7 +188,10 @@ export class SelectedThreadFilter extends Filter {
     // The active thread class is assigned to the element two
     // parent levels up from the CommentThread's element.
     return thread.element.parentElement.parentElement.classList.contains(
-      selectors.activeThread
+      // The classList won't contain the class as a CSS selector,
+      // but we still want to keep activeThread as a selector for
+      // consistency.
+      selectors.activeThread.replace(".", "")
     );
   }
 }
