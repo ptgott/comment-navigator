@@ -5,7 +5,6 @@
 ## Features/application code
 
 - Allow the main calling context--which calls FilterCollection.use()--to read user menu selections from the UI components. Do this periodically before refreshing. The `read()` method of each navigation control returns a `FilterCollection`.
-- Refactor `NextButton` and `PrevButton` to share an interface for navigation buttons (also refactor the tests)
 - Write the entrypoint for the package. It will probably:
 
   1. Render the navigator
@@ -16,10 +15,15 @@
      3. Apply the filters (FiltrationRecord)
      4. Refresh the navigator
 
+- e2e tests
+
+## Features for after the MVP
+
 - Slider for comment navigation. Each stop becomes another comment. Start by dispatching a click for every stop
 
 ## Tooling
 
+- Follow JSDoc conventions more consistently in comments (https://jsdoc.app/about-getting-started.html), e.g. enforcing the `/** */` syntax. Then generate docs.
 - Set up a build script with TypeScript and WebPack
 
 ## Deployment
