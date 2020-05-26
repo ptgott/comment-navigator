@@ -2,8 +2,6 @@
 
 ## Doing now
 
-Allow the main calling context--which calls FilterCollection.use()--to read user menu selections from the UI components. Do this periodically before refreshing. The `read()` method of each navigation control returns a `FilterCollection`.
-
 ## Features/application code
 
 - Write the entrypoint for the package. It will probably:

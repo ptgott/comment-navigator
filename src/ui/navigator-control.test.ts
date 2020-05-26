@@ -6,13 +6,24 @@ import {
   NavButton,
   FirstButton,
   LastButton,
+  AuthorSelectBox,
+  RegexpSearchBox,
+  ThreadTypeCheckBoxes,
 } from "./navigator-control";
 import { ParseForThreads, ThreadCollection } from "../thread/thread-collection";
 import * as selectors from "../constants/selectors";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
-import { MockCommentThread } from "../test-utils/mock-html";
+import {
+  MockCommentThread,
+  MockSuggestionThread,
+} from "../test-utils/mock-html";
 import { CommentThread } from "../thread/comment-thread";
+import {
+  RegexpBodyFilter,
+  SuggestionsFilter,
+  CommentsFilter,
+} from "../filter/filter";
 
 // This file expects you to be using Jest
 
@@ -22,20 +33,28 @@ beforeEach(() => {
 });
 
 describe("NavigatorControl", () => {
-  const err = new RegExp(".*[nN]ot [iI]mplemented.*");
-  test("refresh returns an error on the parent class", () => {
+  const notImp = new RegExp(".*[nN]ot [iI]mplemented.*");
+  test("refresh() returns an error on the parent class", () => {
     const nc = new NavigatorControl();
     expect(() => {
       const fr = new FiltrationRecord(null, null, null);
       nc.refresh(fr);
-    }).toThrowError(err);
+    }).toThrowError(notImp);
   });
 
-  test("render returns an error on the parent class", () => {
+  test("readFilters() returns an error on the parent class", () => {
+    const nc = new NavigatorControl();
+    expect(() => {
+      const fr = new FiltrationRecord(null, null, null);
+      nc.readFilters();
+    }).toThrowError(notImp);
+  });
+
+  test("render() returns an error on the parent class", () => {
     const nc = new NavigatorControl();
     expect(() => {
       nc.render();
-    }).toThrowError(err);
+    }).toThrowError(notImp);
   });
 });
 
@@ -271,5 +290,118 @@ describe("LastButton", () => {
     const actualText = pb.target().element.querySelector(selectors.commentBody)
       .textContent;
     expect(actualText.trim()).toEqual(expectedText);
+  });
+});
+
+describe("AuthorSelectBox", () => {
+  // So we can use these vars in each test
+  let tc, asb: AuthorSelectBox, fr, box: HTMLElement;
+  beforeEach(() => {
+    document.body.innerHTML = [
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a first thread",
+        replies: [
+          {
+            author: "Foo Bar",
+            text: "Replying to my own thread",
+          },
+        ],
+        isActive: false,
+      }),
+      MockCommentThread({
+        author: "Blah Blah",
+        text: "This is a second thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockSuggestionThread({
+        author: "Example User",
+        text: "This is a third thread",
+        replies: [],
+        isActive: true,
+      }),
+    ].join("\n");
+    tc = ParseForThreads(document.body);
+    asb = new AuthorSelectBox();
+    fr = new FiltrationRecord(tc, tc, null);
+    box = asb.render();
+    asb.refresh(fr);
+  });
+  test("lists final comment authors on render", () => {
+    const expectedNames = ["Foo Bar", "Blah Blah", "Example User"];
+    expectedNames.forEach((name) => {
+      expect(box.innerHTML.includes(name)).toEqual(true);
+    });
+  });
+
+  test("returns a FilterCollection that filters by author", () => {
+    const expectedNames = ["Foo Bar", "Blah Blah"];
+    // Select the first two options in the selection box
+    // It should be okay if box.innerHTML doesn't include the
+    // "selected" attribute in its option elements--this behavior
+    // also takes place in a real DOM.
+    [...box.getElementsByTagName("option")].slice(0, 2).forEach((el) => {
+      const opt = el as HTMLOptionElement;
+      opt.selected = true;
+    });
+    const filterCriteria = asb.readFilters().filters.map((filter) => {
+      return filter.criterion;
+    });
+    expect(filterCriteria).toEqual(expect.arrayContaining(expectedNames));
+    expect(filterCriteria.length).toEqual(expectedNames.length);
+  });
+});
+
+describe("RegexpSearchBox", () => {
+  test("creates an input box label on render", () => {
+    const rsb = new RegexpSearchBox();
+    expect(
+      [...rsb.render().children].map((el) => {
+        return el.tagName;
+      })
+    ).toEqual(expect.arrayContaining(["LABEL", "INPUT"]));
+  });
+
+  test("produces a RegexpBodyFilter on read", () => {
+    const rsb = new RegexpSearchBox();
+    const box = rsb.render();
+    const expected = "/^[A-Z][a-z]+/";
+    box.getElementsByTagName("input")[0].value = expected;
+    const rf = rsb.readFilters();
+    expect(rf.filters.length).toEqual(1);
+    expect(rf.filters[0].criterion).toEqual(expected);
+  });
+});
+
+describe("ThreadTypeCheckBoxes", () => {
+  test("creates two checkboxes on render", () => {
+    const ttc = new ThreadTypeCheckBoxes();
+    const r = ttc.render();
+    expect(
+      [...r.children].map((el) => {
+        return el.tagName;
+      })
+    ).toEqual(expect.arrayContaining(["INPUT", "LABEL", "INPUT", "LABEL"]));
+    expect(r.innerHTML).toContain("Comments");
+    expect(r.innerHTML).toContain("Suggestions");
+  });
+
+  test("reads the expected filters", () => {
+    const ttc = new ThreadTypeCheckBoxes();
+    const r = ttc.render();
+    // In other words, the checkboxes should behave the same way regardless
+    // of whether both or none are checked.
+    [true, false].forEach((val) => {
+      [...r.getElementsByTagName("input")].forEach((el) => {
+        el.checked = val;
+      });
+      const f = ttc.readFilters();
+      expect(
+        f.filters.map((filt) => {
+          return filt.constructor;
+        })
+      ).toEqual(expect.arrayContaining([SuggestionsFilter, CommentsFilter]));
+    });
   });
 });
