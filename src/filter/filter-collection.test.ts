@@ -6,8 +6,8 @@ import {
   FinalCommentAuthorNameFilter,
   SuggestionsFilter,
   RegexpBodyFilter,
+  CommentsFilter,
 } from "./filter";
-import * as fs from "fs";
 import {
   MockCommentThread,
   MockSuggestionThread,
@@ -18,68 +18,69 @@ interface testCase {
   results: number;
 }
 
-// Clear the document body so we can muddy it up with each test.
 beforeEach(() => {
-  document.body.innerHTML = null;
+  document.body.innerHTML = [
+    MockSuggestionThread({
+      author: "Foo Bar",
+      text: "This is a comment",
+      replies: [
+        {
+          author: "Fake Name",
+          text: "Fake comment",
+        },
+        {
+          author: "Blah Blah",
+          text: "This is the final response",
+        },
+      ],
+    }),
+    MockCommentThread({
+      author: "Example",
+      text: "This is a comment",
+      replies: [
+        {
+          author: "Foo Bar",
+          text: "This is a response!",
+        },
+      ],
+    }),
+    MockSuggestionThread({
+      author: "Bar Baz",
+      text: "This is a suggestion",
+      replies: [
+        {
+          author: "Blah Blah",
+          text: "Example",
+        },
+      ],
+    }),
+    MockSuggestionThread({
+      author: "Bar Baz",
+      text: "This is a suggestion",
+      replies: [
+        {
+          author: "Foo Bar",
+          text: "This is a response!",
+        },
+      ],
+    }),
+  ].join("\n");
 });
 
 describe("FilterCollection", () => {
-  test("chains filters together", () => {
-    document.body.innerHTML = [
-      MockSuggestionThread({
-        author: "Foo Bar",
-        text: "This is a comment",
-        replies: [
-          {
-            author: "Fake Name",
-            text: "Fake comment",
-          },
-          {
-            author: "Blah Blah",
-            text: "This is the final response",
-          },
-        ],
-      }),
-      MockCommentThread({
-        author: "Example",
-        text: "This is a comment",
-        replies: [
-          {
-            author: "Foo Bar",
-            text: "This is a response!",
-          },
-        ],
-      }),
-      MockSuggestionThread({
-        author: "Bar Baz",
-        text: "This is a suggestion",
-        replies: [
-          {
-            author: "Blah Blah",
-            text: "Example",
-          },
-        ],
-      }),
-      MockSuggestionThread({
-        author: "Bar Baz",
-        text: "This is a suggestion",
-        replies: [
-          {
-            author: "Foo Bar",
-            text: "This is a response!",
-          },
-        ],
-      }),
-    ].join("\n");
+  test("throws an error if there's no Boolean provided", () => {
+    expect(() => {
+      new FilterCollection([], "");
+    }).toThrowError("Boolean");
+  });
+
+  test("with AND logic, accepts CommentThreads that all filters apply to", () => {
     const threadColl = ParseForThreads(
       document.getElementsByTagName("body")[0]
     );
     const cases: Array<testCase> = [
       {
         input: [
-          // This test is getting zero results, but shouldn't be--
-          // finalCommentAuthorNameFilter works for a thread that's
-          // a single suggestion with no comments.
           new FinalCommentAuthorNameFilter("Blah Blah"),
           new SuggestionsFilter(),
         ],
@@ -95,7 +96,31 @@ describe("FilterCollection", () => {
     ];
 
     cases.forEach((c) => {
-      const filterColl = new FilterCollection(c.input);
+      const filterColl = new FilterCollection(c.input, "AND");
+      expect(filterColl.use(threadColl).elements.length).toEqual(c.results);
+    });
+  });
+
+  test("with OR logic, accepts CommentThreads that any filter applies to", () => {
+    const threadColl = ParseForThreads(
+      document.getElementsByTagName("body")[0]
+    );
+    const cases: Array<testCase> = [
+      {
+        input: [
+          new FinalCommentAuthorNameFilter("Blah Blah"),
+          new FinalCommentAuthorNameFilter("Example"),
+        ],
+        results: 2,
+      },
+      {
+        input: [new SuggestionsFilter(), new CommentsFilter()],
+        results: 4,
+      },
+    ];
+
+    cases.forEach((c) => {
+      const filterColl = new FilterCollection(c.input, "OR");
       expect(filterColl.use(threadColl).elements.length).toEqual(c.results);
     });
   });

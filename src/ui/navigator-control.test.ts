@@ -76,7 +76,11 @@ describe("ThreadCount", () => {
     );
     // Don't use actual filters here--we don't need them, and this will
     // keep the test more isolated.
-    const fr = new FiltrationRecord(coll, filtered, new FilterCollection([]));
+    const fr = new FiltrationRecord(
+      coll,
+      filtered,
+      new FilterCollection([], "AND")
+    );
 
     threadCount.refresh(fr);
     expect(el.textContent).toEqual(
@@ -113,7 +117,7 @@ describe("NavButton", () => {
     );
     document.body.appendChild(nb.render());
     const tc = ParseForThreads(document.body);
-    const fc = new FilterCollection([]);
+    const fc = new FilterCollection([], "AND");
     const fr = new FiltrationRecord(tc, tc, fc);
     const expected = "click";
     const el = nb.controlElement();
@@ -159,7 +163,7 @@ describe("NextButton", () => {
     ].join("\n");
     const tc = ParseForThreads(document.body);
     const nb = NextButton();
-    const fc = new FilterCollection([]);
+    const fc = new FilterCollection([], "AND");
     const fr = new FiltrationRecord(tc, tc, fc);
     nb.refresh(fr);
     const actualText = nb.target().element.querySelector(selectors.commentBody)
@@ -193,7 +197,7 @@ describe("PrevButton", () => {
     ].join("\n");
     const tc = ParseForThreads(document.body);
     const pb = PrevButton();
-    const fc = new FilterCollection([]);
+    const fc = new FilterCollection([], "AND");
     const fr = new FiltrationRecord(tc, tc, fc);
     pb.refresh(fr);
     const actualText = pb.target().element.querySelector(selectors.commentBody)
@@ -227,7 +231,7 @@ describe("FirstButton", () => {
     ].join("\n");
     const tc = ParseForThreads(document.body);
     const pb = FirstButton();
-    const fc = new FilterCollection([]);
+    const fc = new FilterCollection([], "AND");
     const fr = new FiltrationRecord(tc, tc, fc);
     pb.refresh(fr);
     const actualText = pb.target().element.querySelector(selectors.commentBody)
@@ -261,7 +265,7 @@ describe("LastButton", () => {
     ].join("\n");
     const tc = ParseForThreads(document.body);
     const pb = LastButton();
-    const fc = new FilterCollection([]);
+    const fc = new FilterCollection([], "AND");
     const fr = new FiltrationRecord(tc, tc, fc);
     pb.refresh(fr);
     const actualText = pb.target().element.querySelector(selectors.commentBody)
