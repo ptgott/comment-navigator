@@ -1,5 +1,6 @@
 import { NavigatorControl, ThreadCount } from "./navigator-control";
 import { FiltrationRecord } from "../filter/filtration-record";
+import { FilterCollection } from "../filter/filter-collection";
 
 /**
  * Represents the UI component for the comment navigator.
@@ -8,7 +9,7 @@ import { FiltrationRecord } from "../filter/filtration-record";
  * caller should call window.setInterval (or some other means)
  * to periodically refresh the state of the component.
  */
-export class Navigator {
+export class CommentNavigator {
   /**
    * The HTML component itself.
    * render() adds it to the DOM.
@@ -18,16 +19,23 @@ export class Navigator {
   public element: HTMLElement;
 
   /**
-   * For rendering and refreshing, Navigator
+   * For rendering and refreshing, CommentNavigator
    * just calls render() or refresh() for each
-   * subcomponent. Navigator doesn't know
+   * subcomponent. CommentNavigator doesn't know
    * if its subcomponents have children.
    */
   private subcomponents: Array<NavigatorControl>;
 
-  constructor() {
-    // Initialize subcomponents in the order they'll be rendered
-    this.subcomponents = [new ThreadCount()];
+  /**
+   *
+   * @param subcomponents are the NavigatorControls to
+   * render within the CommentNavigator. These will be
+   * rendered in the order given in the array.
+   */
+  constructor(subcomponents: Array<NavigatorControl>) {
+    this.element = document.createElement("div");
+    this.element.id = "googleDocsCommentNavigator";
+    this.subcomponents = subcomponents;
   }
 
   /**
@@ -35,6 +43,12 @@ export class Navigator {
    */
   public render(context: HTMLElement): void {
     context.appendChild(this.element);
+
+    // Nothing more to render
+    if (this.subcomponents == null) {
+      return;
+    }
+
     this.subcomponents.forEach((sc) => {
       this.element.appendChild(sc.render());
     });
@@ -56,5 +70,22 @@ export class Navigator {
     this.subcomponents.forEach((sc) => {
       sc.refresh(fr);
     });
+  }
+
+  /**
+   * Reads NavigatorControls for user-selected filter options.
+   * It exists as a single interface to each NavigatorControl's
+   * readFilters() method.
+   */
+  public readFilters(): FilterCollection {
+    return new FilterCollection(
+      this.subcomponents.reduce((accum, control) => {
+        const f = control.readFilters();
+        return accum.concat(f);
+      }, []),
+      // Each NavigatorComponent is isolated from the others, so
+      // we process ThreadCollections through all of them.
+      "AND"
+    );
   }
 }

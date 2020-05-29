@@ -3,11 +3,18 @@ import { ThreadCollection } from "../thread/thread-collection";
 import { CommentThread } from "../thread/comment-thread";
 
 /**
+ * Filterable is anything that can be used as a filter.
+ * Both Filter and FilterCollection have a chainable use()
+ * method that both accepts and returns a ThreadCollection.
+ */
+type Filterable = Filter | FilterCollection;
+
+/**
  * FilterCollection is responsible for chaining filters
  * and reporting metadata about that chain.
  */
 export class FilterCollection {
-  public filters: Array<Filter>;
+  public filters: Array<Filterable>;
 
   private booleanOperator: string;
 
@@ -20,7 +27,7 @@ export class FilterCollection {
    * in the collection apply. If it's "OR", the FilterCollection
    * only accepts CommentThreads if any filter in the collection applies.
    */
-  constructor(filters: Array<Filter>, booleanOperator: string) {
+  constructor(filters: Array<Filterable>, booleanOperator: string) {
     const validBools = ["AND", "OR"];
     if (validBools.indexOf(booleanOperator) == -1) {
       throw new Error("Provided Boolean operator is not valid");
@@ -37,18 +44,11 @@ export class FilterCollection {
    * @param collection the ThreadCollection to apply the filters to.
    */
   private useAnd(collection: ThreadCollection): ThreadCollection {
-    let lastResult: ThreadCollection;
-
     // There's no special logic here: just apply each filter
     // to the ThreadCollection returned by the previous filter.
-    for (let i = 0; i < this.filters.length; i++) {
-      if (!lastResult) {
-        lastResult = this.filters[i].use(collection);
-      } else {
-        lastResult = this.filters[i].use(lastResult);
-      }
-    }
-    return lastResult;
+    return this.filters.reduce((accum, fc) => {
+      return fc.use(accum);
+    }, collection);
   }
 
   /** The variant of use() that outputs a CommentThread if

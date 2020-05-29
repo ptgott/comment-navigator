@@ -11,7 +11,7 @@
     "src/*.ts",
     "src/filter/filter.ts",
     "src/thread/thread-collection.test.ts",
-    "src/ui/navigator.ts",
+    "src/ui/comment-navigator.ts",
     "src/thread/thread-collection.ts",
     "src/thread/comment-thread.ts",
     "src/constants/selectors.ts",

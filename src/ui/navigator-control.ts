@@ -36,7 +36,7 @@ export class NavigatorControl {
   /**
    * Some NavigatorControls are form elements that the calling
    * context uses to determine which Filters to apply within
-   * the Navigator. These NavigatorControls implement
+   * the CommentNavigator. These NavigatorControls implement
    * readFilters(), which determines the Filters that a user
    * has selected from the NavigatorControl's elements.
    */
@@ -206,7 +206,7 @@ export class AuthorSelectBox extends NavigatorControl {
    * We draw the option elements for the select box from
    * the post-filtration CommentThreads. This makes it clearer
    * which options the user can choose from when applying
-   * multiple filters via the Navigator's input elements.
+   * multiple filters via the CommentNavigator's input elements.
    * @param fr a FiltrationRecord
    */
   public refresh(fr: FiltrationRecord): void {
