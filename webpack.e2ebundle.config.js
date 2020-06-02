@@ -1,14 +1,16 @@
 /**
- * This config is for creating a production JS bundle for
- * running in a browser.
+ * This config bundles the frontend JS for use within e2e tests.
  */
 
 const path = require("path");
 
 module.exports = {
   target: "web", // The default, but included here for clarity
-  mode: "production",
-  entry: "./src/index.ts",
+  mode: "development",
+  entry: {
+    index: path.resolve(__dirname, "src", "index.ts"),
+    e2e_globals: path.resolve(__dirname, "src", "e2e-utils", "e2e_globals.ts"),
+  },
   module: {
     rules: [
       {
@@ -21,7 +23,7 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js"],
   },
   output: {
-    filename: "bundle.js",
+    filename: "[name].dev.js",
     path: path.resolve(__dirname, "static", "js_dist"),
   },
 };

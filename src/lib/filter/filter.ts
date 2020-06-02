@@ -64,9 +64,19 @@ export class FinalCommentAuthorNameFilter extends Filter {
   }
 
   matches(thread: CommentThread): boolean {
+    // No author can possibly have a blank name.
+    // If the criterion is blank, but the filter exists,
+    // we shouldn't assume the user wanted to filter out
+    // all authors.
+    if (this.criterion.trim() == "") {
+      return true;
+    }
+
     return (
-      thread.finalComment().querySelector(selectors.author).textContent ==
-      this.criterion
+      thread
+        .finalComment()
+        .querySelector(selectors.author)
+        .textContent.trim() == this.criterion.trim()
     );
   }
 }

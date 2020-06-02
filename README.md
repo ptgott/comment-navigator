@@ -7,4 +7,4 @@ A tool for making it easier to manage comments and suggestions in Google Docs. A
 ## Contributing
 
 - We use Prettier for formatting. If you're using VSCode, `.vscode/settings.json` configures Prettier to format on save.
-- We use Jest for testing. Run `npm test` to run tests. `npm run coverage` also runs the tests, then opens Jest's code coverage report in your browser. Use this when you want to plan the next tests to write.
+- We use Jest for testing. Run `npm test` to run tests. `npm run coverage` also runs the tests, then opens Jest's code coverage report in your browser. Use this when you want to plan the next tests to write. (This only applies to unit tests.)

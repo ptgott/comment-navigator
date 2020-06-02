@@ -19,11 +19,7 @@ import {
   MockSuggestionThread,
 } from "../test-utils/mock-html";
 import { CommentThread } from "../thread/comment-thread";
-import {
-  RegexpBodyFilter,
-  SuggestionsFilter,
-  CommentsFilter,
-} from "../filter/filter";
+import { SuggestionsFilter, CommentsFilter, Filter } from "../filter/filter";
 
 // This file expects you to be using Jest
 
@@ -111,6 +107,7 @@ describe("ThreadCount", () => {
 describe("NavButton", () => {
   test("renders a button", () => {
     const nb = new NavButton(
+      "Test",
       (tc: ThreadCollection): CommentThread => {
         return tc.elements[0];
       }
@@ -130,6 +127,7 @@ describe("NavButton", () => {
     ].join("\n");
 
     const nb = new NavButton(
+      "Test",
       (tc: ThreadCollection): CommentThread => {
         return tc.elements[0];
       }
@@ -295,7 +293,8 @@ describe("LastButton", () => {
 
 describe("AuthorSelectBox", () => {
   // So we can use these vars in each test
-  let tc, asb: AuthorSelectBox, fr, box: HTMLElement;
+  let tc: ThreadCollection, asb: AuthorSelectBox, fr, box: HTMLElement;
+
   beforeEach(() => {
     document.body.innerHTML = [
       MockCommentThread({
@@ -328,6 +327,7 @@ describe("AuthorSelectBox", () => {
     box = asb.render();
     asb.refresh(fr);
   });
+
   test("lists final comment authors on render", () => {
     const expectedNames = ["Foo Bar", "Blah Blah", "Example User"];
     expectedNames.forEach((name) => {
@@ -346,10 +346,49 @@ describe("AuthorSelectBox", () => {
       opt.selected = true;
     });
     const filterCriteria = asb.readFilters().filters.map((filter) => {
-      return filter.criterion;
+      return (filter as Filter).criterion;
     });
     expect(filterCriteria).toEqual(expect.arrayContaining(expectedNames));
     expect(filterCriteria.length).toEqual(expectedNames.length);
+  });
+
+  test("filters for all authors when no options are selected", () => {
+    // Make sure no names are selected
+    [...box.getElementsByTagName("option")].forEach((el) => {
+      const opt = el as HTMLOptionElement;
+      opt.selected = false;
+    });
+    const fc = asb.readFilters();
+    const a = fc.use(tc);
+    // There shouldn't be any actual filtration if
+    // no authors are selected
+    expect(a.elements.length).toEqual(tc.elements.length);
+  });
+  test("updates when conversations change", () => {
+    // Change the comment HTML after the initial
+    // select box refresh
+    document.body.innerHTML = [
+      MockCommentThread({
+        author: "Fake User",
+        text: "This is a first thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockSuggestionThread({
+        author: "Example User",
+        text: "This is a third thread",
+        replies: [],
+        isActive: true,
+      }),
+    ].join("\n");
+    const tc2 = ParseForThreads(document.body);
+    const fr2 = new FiltrationRecord(tc2, tc2, null);
+    // Second refresh after the beforeEach block
+    asb.refresh(fr2);
+    const expectedNames = ["Fake User", "Example User"];
+    expectedNames.forEach((name) => {
+      expect(box.innerHTML.includes(name)).toEqual(true);
+    });
   });
 });
 
@@ -370,7 +409,8 @@ describe("RegexpSearchBox", () => {
     box.getElementsByTagName("input")[0].value = expected;
     const rf = rsb.readFilters();
     expect(rf.filters.length).toEqual(1);
-    expect(rf.filters[0].criterion).toEqual(expected);
+    const actual = (rf.filters[0] as Filter).criterion;
+    expect(actual).toEqual(expected);
   });
 });
 

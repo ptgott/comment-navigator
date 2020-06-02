@@ -1,0 +1,43 @@
+# Data to be transformed into MockCommentThreads and MockSuggestionThreads.
+# This approach makes it easier for the e2e tests to identify expected
+# conditions without having to repeat the business logic of the
+# comment navigator itself.
+
+- type: commentThread
+  author: "Fake Fakesley"
+  text: "This could use a bit more work."
+  replies:
+    - author: "False Falsington"
+      text: "I don't think so."
+    - author: "Mock Mockburg"
+      text: "I agree with False Falsington."
+- type: suggestionThread
+  author: "Fake Fakesley"
+  text: "Deleted 'Some people think that'"
+  replies:
+    - author: "Mock Mockburg"
+      text: "Maybe it would be good to show that this isn't ubiquitous knowledge."
+    - author: "False Falsington"
+      text: "What do you think, Fake?"
+- type: suggestionThread
+  author: "Fake Fakesley"
+  text: "Replaced 'p' with 'P'"
+  replies: []
+- type: commentThread
+  author: "False Falsington"
+  text: "I think we need an image here."
+  replies:
+    - author: "Mock Mockburg"
+      text: "What did you have in mind?"
+    - author: "Fake Fakesley"
+      text: "Probably an illustration. What do you think?"
+- type: suggestionThread
+  author: "Mock Mockburg"
+  text: "Deleted heading"
+  replies:
+    - author: "Fake Fakesley"
+      text: "Are we merging these two sections?"
+    - author: "Mock Mockburg"
+      text: "Yeah"
+    - author: "False Falsington"
+      text: "If so, I think we need a better transition here."

@@ -4,13 +4,28 @@ import { CommentNavigator } from "./comment-navigator";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { ThreadCollection } from "../thread/thread-collection";
 import { TestNavigatorControl } from "../test-utils/test-navigator-control";
-import { CommentThread } from "../thread/comment-thread";
+import { NavigatorControl } from "./navigator-control";
 
 beforeEach(() => {
   document.body.innerHTML = "";
 });
 
 describe("CommentNavigator", () => {
+  const fullImplementation = {
+    implementReadFilters: true,
+    implementRefresh: true,
+  };
+
+  const noReadFilters = {
+    implementReadFilters: false,
+    implementRefresh: true,
+  };
+
+  const noRefresh = {
+    implementRefresh: false,
+    implementReadFilters: true,
+  };
+
   test("render generates HTML", () => {
     const n = new CommentNavigator(null);
     n.render(document.body);
@@ -29,9 +44,9 @@ describe("CommentNavigator", () => {
 
   test("render() adds child component elements to navigator", () => {
     const n = new CommentNavigator([
-      new TestNavigatorControl(),
-      new TestNavigatorControl(),
-      new TestNavigatorControl(),
+      new TestNavigatorControl(fullImplementation),
+      new TestNavigatorControl(fullImplementation),
+      new TestNavigatorControl(fullImplementation),
     ]);
     n.render(document.body);
     // Each TestNavigatorControl creates a single div containing the text
@@ -46,9 +61,11 @@ describe("CommentNavigator", () => {
 
   test("refresh() updates child component elements to navigator", () => {
     const n = new CommentNavigator([
-      new TestNavigatorControl(),
-      new TestNavigatorControl(),
-      new TestNavigatorControl(),
+      // Sometimes a component won't implement readFilters() or
+      // refresh(), and that's okay!
+      new TestNavigatorControl(fullImplementation),
+      new TestNavigatorControl(noReadFilters),
+      new TestNavigatorControl(noRefresh),
     ]);
     n.render(document.body);
     n.refresh(
@@ -70,13 +87,15 @@ describe("CommentNavigator", () => {
 
   test("readFilters() creates a combined FilterCollection", () => {
     const n = new CommentNavigator([
-      new TestNavigatorControl(),
-      new TestNavigatorControl(),
+      new TestNavigatorControl(fullImplementation),
+      new TestNavigatorControl(fullImplementation),
+      // Some controls don't implement readFilters, and
+      // we should skip over them.
+      new TestNavigatorControl(noReadFilters),
     ]);
     // This should result in two FilterCollections, each containing
     // TestFilters
     const fc = n.readFilters();
-    console.log(fc);
     const filterTypes = fc.filters.map((filt) => {
       return filt.constructor.name;
     });

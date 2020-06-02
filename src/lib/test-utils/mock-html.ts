@@ -6,6 +6,9 @@
  * hold within the doc (e.g, a thread gets selected).
  */
 
+// TODO: CommentThreadOptison and SuggestionThreadOptions are
+// the same. Is there any reason to name them differently?
+
 /** CommentThreadOptions lets you design a comment thread, including
  * its first comment and any child comments.
  */

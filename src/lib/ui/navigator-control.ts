@@ -10,6 +10,7 @@ import {
 import { FiltrationRecord } from "../filter/filtration-record";
 import { ThreadCollection } from "../thread/thread-collection";
 import { FilterCollection } from "../filter/filter-collection";
+import { commentBody } from "../constants/selectors";
 
 /** Each NavigatorControl represents a single
  * switch/button/etc you can manipulate within
@@ -30,7 +31,7 @@ export class NavigatorControl {
    * property or similar.
    */
   public render(): HTMLElement {
-    throw new Error("render() is not implemented");
+    throw new Error(`render() is not implemented for ${this.constructor.name}`);
   }
 
   /**
@@ -41,7 +42,9 @@ export class NavigatorControl {
    * has selected from the NavigatorControl's elements.
    */
   public readFilters(): FilterCollection {
-    throw new Error("readFilters() is not implemented");
+    throw new Error(
+      `readFilters() is not implemented for ${this.constructor.name}`
+    );
   }
 
   /**
@@ -51,7 +54,9 @@ export class NavigatorControl {
    * @param fr FiltrationRecord
    */
   public refresh(fr: FiltrationRecord): void {
-    throw new Error("render() is not implemented");
+    throw new Error(
+      `refresh() is not implemented for ${this.constructor.name}`
+    );
   }
 }
 
@@ -66,6 +71,7 @@ export class ThreadCount extends NavigatorControl {
 
   public render(): HTMLElement {
     this.element = document.createElement("span");
+    this.element.id = "commentThreadCount";
     return this.element;
   }
 
@@ -87,6 +93,8 @@ export class ThreadCount extends NavigatorControl {
  */
 export class NavButton extends NavigatorControl {
   private nextTarget: (tc: ThreadCollection) => CommentThread;
+
+  private text: string; // For display and direction data attribute
 
   private targetThread: CommentThread;
 
@@ -111,8 +119,12 @@ export class NavButton extends NavigatorControl {
    * no way to pass filters _into_ the NavButton--ThreadCollections
    * should already be filtered.
    */
-  constructor(targetFunc: (tc: ThreadCollection) => CommentThread) {
+  constructor(
+    text: string,
+    targetFunc: (tc: ThreadCollection) => CommentThread
+  ) {
     super();
+    this.text = text;
     this.nextTarget = targetFunc;
   }
 
@@ -122,6 +134,8 @@ export class NavButton extends NavigatorControl {
 
   public render(): HTMLElement {
     this.element = document.createElement("button");
+    this.element.textContent = this.text;
+    this.element.dataset.direction = this.text;
     this.element.addEventListener("click", () => {
       // The clickable outer wrapper of the CommentThread element
       // is two levels of parentage up from the CommentThread element
@@ -139,10 +153,15 @@ export class NavButton extends NavigatorControl {
  */
 export function NextButton(): NavButton {
   return new NavButton(
+    "Next",
     (tc: ThreadCollection): CommentThread => {
       const selected = new SelectedThreadFilter().use(tc).elements[0];
-      const i = tc.elements.indexOf(selected);
-      return tc.elements[Math.min(tc.elements.length, i + 1)];
+      // Ensure that the ThreadCollection's elements are ordered
+      // in their original sequence.
+      tc.orderByAppearanceInPage();
+      const selectedIndex = tc.elements.indexOf(selected);
+      const maxIndex = Math.max(tc.elements.length - 1, 0);
+      return tc.elements[Math.min(maxIndex, selectedIndex + 1)];
     }
   );
 }
@@ -152,8 +171,12 @@ export function NextButton(): NavButton {
  */
 export function PrevButton(): NavButton {
   return new NavButton(
+    "Previous",
     (tc: ThreadCollection): CommentThread => {
       const selected = new SelectedThreadFilter().use(tc).elements[0];
+      // Ensure that the ThreadCollection's elements are ordered
+      // in their original sequence.
+      tc.orderByAppearanceInPage();
       const i = tc.elements.indexOf(selected);
       return tc.elements[Math.max(0, i - 1)];
     }
@@ -165,7 +188,11 @@ export function PrevButton(): NavButton {
  */
 export function FirstButton(): NavButton {
   return new NavButton(
+    "First",
     (tc: ThreadCollection): CommentThread => {
+      // Ensure that the ThreadCollection's elements are ordered
+      // in their original sequence.
+      tc.orderByAppearanceInPage();
       return tc.elements[0];
     }
   );
@@ -176,7 +203,11 @@ export function FirstButton(): NavButton {
  */
 export function LastButton(): NavButton {
   return new NavButton(
+    "Last",
     (tc: ThreadCollection): CommentThread => {
+      // Ensure that the ThreadCollection's elements are ordered
+      // in their original sequence.
+      tc.orderByAppearanceInPage();
       return tc.elements[Math.max(0, tc.elements.length - 1)];
     }
   );
@@ -189,7 +220,7 @@ export function LastButton(): NavButton {
  * CommentThreads.
  */
 export class AuthorSelectBox extends NavigatorControl {
-  private element: HTMLElement;
+  private element: HTMLSelectElement;
 
   constructor() {
     super();
@@ -210,16 +241,62 @@ export class AuthorSelectBox extends NavigatorControl {
    * @param fr a FiltrationRecord
    */
   public refresh(fr: FiltrationRecord): void {
-    // We're using a naive technique for erasing the
-    // current option elements for now. If this gets
-    // really slow for high author counts, we can
-    // rework.
+    // We don't want the refresh to erase author selections.
+    // Record which authors are selected for later. However,
+    // since author selections determine which authors
+    // are final authors, we also need to preserve _unselected_
+    // author names.
+    interface authorSelection {
+      name: string;
+      selected: boolean;
+    }
+    const selectableAuthorNames = [...this.element.options].map((opt) => {
+      return {
+        name: opt.textContent,
+        selected: opt.selected,
+      };
+    }, []);
+
+    // If we derive currentAuthorNames from fr.after, then
+    // only the selected name will appear in the list of options.
+    const currentAuthorNames = fr.before.finalCommentAuthorNames();
+
+    // Delete any author names that aren't in the current threads.
+    selectableAuthorNames.forEach((an) => {
+      // The name is not within the current author names
+      if (currentAuthorNames.indexOf(an.name) == -1) {
+        // Delete the name
+        const i = selectableAuthorNames.indexOf(an);
+        selectableAuthorNames.splice(Math.max(i, 0), 1);
+      }
+    });
+
+    // Go through the current current threads and see if we need
+    // to add any new ones to authorNames.
+    currentAuthorNames.forEach((newName) => {
+      // Is the new name actually a previous name?
+      const match = selectableAuthorNames.find((oldNameObj) => {
+        return oldNameObj.name == newName;
+      });
+      // Is the new name missing from the list of old names?
+      if (match == undefined) {
+        selectableAuthorNames.push({ name: newName, selected: false });
+      }
+    });
+
+    // Clear it all and start over for simplicity.
+    // If this is too resource-heavy we can delete author name elements
+    // selectively and add only new ones.
     this.element.innerHTML = "";
-    const authors = fr.after.finalCommentAuthorNames();
-    authors.forEach((auth) => {
+
+    selectableAuthorNames.forEach((an) => {
       let opt = document.createElement("option");
-      opt.textContent = auth;
-      opt.value = auth;
+      opt.textContent = an.name;
+      opt.value = an.name;
+
+      // Preserve author selection status from the last refresh
+      // cycle.
+      opt.selected = an.selected;
       this.element.appendChild(opt);
     });
   }
@@ -232,6 +309,12 @@ export class AuthorSelectBox extends NavigatorControl {
       }
       return accum;
     }, []);
+
+    // Selecting no authors should count as selecting all authors--
+    // no one wants to deselect all comments.
+    if (selectedAuthors.length == 0) {
+      selectedAuthors.push(new FinalCommentAuthorNameFilter(""));
+    }
     // Since the final comment in each thread has only a single author,
     // it doens't make sense to apply multiple filters here. Show all
     // authors that pass through one FinalCommentAuthorNameFilter.

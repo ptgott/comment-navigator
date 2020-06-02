@@ -86,6 +86,7 @@ describe("FinalCommentAuthorNameFilter", () => {
         ],
       }),
     ].join("\n");
+
     const authorCases: Array<testCase> = [
       {
         input: "Paul Gottschling",
@@ -99,6 +100,8 @@ describe("FinalCommentAuthorNameFilter", () => {
         input: "Blargh Blargh",
         results: 0,
       },
+      // Having no input should show all results.
+      { input: "", results: 4 },
     ];
 
     authorCases.forEach((ac) => {

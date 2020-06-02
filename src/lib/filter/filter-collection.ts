@@ -59,7 +59,7 @@ export class FilterCollection {
     // Put the results of all filters in a single array. No filter
     // knows about the results of any other filter.
     let allThreads: Array<CommentThread> = this.filters.reduce(
-      (accum, filter) => {
+      (accum: Array<CommentThread>, filter) => {
         return accum.concat(filter.use(collection).elements);
       },
       []
@@ -75,6 +75,9 @@ export class FilterCollection {
    * individual filter.
    */
   public use(collection: ThreadCollection): ThreadCollection {
+    // Using a map to allow for simple expansion, but
+    // if therere's no expansion we might be better off
+    // using an if statement.
     const boolToFunc: Map<
       string,
       (tc: ThreadCollection) => ThreadCollection

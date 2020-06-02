@@ -60,3 +60,9 @@ export const rootReply: string = ".docos-docoview-rootreply";
  *
  */
 export const activeThread: string = ".docos-docoview-active";
+
+/**
+ * The class describing the outermost wrapper div for a comment or suggestion
+ * thread
+ */
+export const conversationWrapper: string = ".docos-docoview-tesla-conflict";

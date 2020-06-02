@@ -1,6 +1,7 @@
 import { NavigatorControl, ThreadCount } from "./navigator-control";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
+import { Filter } from "../filter/filter";
 
 /**
  * Represents the UI component for the comment navigator.
@@ -68,7 +69,13 @@ export class CommentNavigator {
    */
   public refresh(fr: FiltrationRecord): void {
     this.subcomponents.forEach((sc) => {
-      sc.refresh(fr);
+      // We can't expect refresh() to be implemented for
+      // all subcomponents.
+      try {
+        sc.refresh(fr);
+      } catch {
+        return;
+      }
     });
   }
 
@@ -80,8 +87,15 @@ export class CommentNavigator {
   public readFilters(): FilterCollection {
     return new FilterCollection(
       this.subcomponents.reduce((accum, control) => {
-        const f = control.readFilters();
-        return accum.concat(f);
+        let f: FilterCollection;
+        // We don't expect readFilters to work with every control,
+        // since sometimes it's not implemented.
+        try {
+          f = control.readFilters();
+          return accum.concat(f);
+        } catch {
+          return accum;
+        }
       }, []),
       // Each NavigatorComponent is isolated from the others, so
       // we process ThreadCollections through all of them.

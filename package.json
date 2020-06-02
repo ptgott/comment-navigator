@@ -4,23 +4,40 @@
   "description": "Tool for managing comments and suggestions in Google Docs",
   "main": "index.js",
   "scripts": {
-    "test": "npx jest src/**/*.test.ts",
-    "coverage": "npx jest --collect-coverage --collectCoverageFrom=src/**/*.ts src/**/*.test.ts && open coverage/lcov-report/index.html",
-    "format": "npx prettier@2.0.5 . --write"
+    "test": "bash scripts/unit-test.sh",
+    "coverage": "COVERAGE=true bash scripts/unit-test.sh",
+    "format": "npx prettier@2.0.5 . --write",
+    "build": "webpack",
+    "e2e": "bash scripts/e2e-test.sh",
+    "e2e-inspect": "bash scripts/e2e-server-manual.sh"
   },
   "author": "paul.gottschling@gmail.com",
   "private": true,
-  "module": "comment-nav.js",
+  "module": "src/index.ts",
   "devDependencies": {
     "@babel/core": "7.9.6",
     "@babel/preset-env": "7.9.6",
     "@babel/preset-typescript": "7.9.0",
+    "@types/expect-puppeteer": "4.4.3",
+    "@types/express": "^4.17.6",
     "@types/jest": "25.2.1",
+    "@types/jest-environment-puppeteer": "4.3.1",
+    "@types/js-yaml": "3.12.4",
     "@types/node": "13.13.4",
+    "@types/puppeteer": "3.0.0",
+    "expect-puppeteer": "4.4.0",
     "jest": "26.0.1",
-    "prettier": "2.0.5"
+    "jest-puppeteer": "4.4.0",
+    "js-yaml": "3.14.0",
+    "prettier": "2.0.5",
+    "puppeteer": "3.3.0",
+    "ts-loader": "7.0.5",
+    "typescript": "3.9.3",
+    "webpack": "4.43.0",
+    "webpack-cli": "3.3.11"
   },
   "dependencies": {
+    "express": "4.17.1",
     "regexpp": "3.1.0"
   }
 }

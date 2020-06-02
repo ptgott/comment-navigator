@@ -26,6 +26,9 @@ export function ParseForThreads(bod: HTMLElement): ThreadCollection {
  * thread. Use Filter when you want to return a subset of
  * threads.
  */
+// TODO: consider renaming ThreadCollection to something more
+// descriptive of what this is and why you'd use it.
+// Maybe ThreadState or something similar Or GlobalThreadState?
 export class ThreadCollection {
   public elements: Array<CommentThread>;
 
@@ -37,6 +40,28 @@ export class ThreadCollection {
    */
   constructor(elements: Array<CommentThread>) {
     this.elements = elements;
+  }
+
+  /**
+   * orderByAppearanceInPage orders the elements array
+   * according to where each CommentThread appears in the DOM
+   * in relation to its sibling CommentThreads. This is to prevent
+   * the elements array from losing the original sequence
+   * of its CommentThreads to, for example, enable
+   * navigation.
+   */
+  orderByAppearanceInPage(): void {
+    // TODO: We may also consider adding other orderBy... functions
+    // for qualities like body text length and number of replies.
+    // TODO: consider having this output a ThreadCollection, rather than
+    // mutating the original ThreadCollection, for more predictable
+    // code.
+    const threadsOnPage = [...document.body.querySelectorAll(selectors.thread)];
+    this.elements = this.elements.sort((a, b) => {
+      const indexA = threadsOnPage.indexOf(a.element);
+      const indexB = threadsOnPage.indexOf(b.element);
+      return indexA - indexB;
+    });
   }
 
   /**
