@@ -29,4 +29,6 @@ Write the entrypoint for the package.
 
 - Slider for comment navigation. Each stop becomes another comment. Start by dispatching a click for every stop
 
+- Filter by comment length and provide an option to navigate threads in descending/ascending length.
+
 ## Tooling
