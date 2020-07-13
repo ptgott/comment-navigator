@@ -4,20 +4,21 @@
 
 ## Next up in the MVP (by priority)
 
-- Determine how to deploy this. Consider making it an add-on: https://developers.google.com/gsuite/add-ons/how-tos/building-editor-addons. Or make it a userscript for Tampermonkey etc.
-
-  - There doesn't seem to be any first-class representation of comments in the Apps Script APIs (https://developers.google.com/apps-script/reference/document)
-  - You can develop in Apps Script via TypeScript (https://developers.google.com/apps-script/guides/typescript)
-  - The best bet is probably to write a server-side Apps Script program (hosted by Google) that serves HTML with embedded JS (https://developers.google.com/apps-script/guides/html#index.html). This seems like it won’t affect existing frontend code!
+- Style the navigator
 
 - Add the ability to toggle the navigator on and off
 
 - Follow JSDoc conventions more consistently in comments (https://jsdoc.app/about-getting-started.html), e.g. enforcing the `/** */` syntax. Then generate docs.
 
-- Set up a build script with TypeScript and WebPack
+- Make this easily downloadable and determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php): Host this on a gist!
+
+  - Gists are GitHub repos--you can create/update them via the API (https://docs.github.com/en/rest/reference/gists).
+  - The gist should include the URL of the main repo in case users want to contribute! (Need to edit the bundle banner)
+  - Look into using GitHub Actions (e.g. this one: https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. GitHub Actions is free for public repos (https://github.com/features/actions). Trigger the action when creating a release.
 
 ## Features for after the MVP
 
+- Give the “selectors” package as little surface area as possible. Add a Comment class and include all attributes of comments/threads we'll use in the navigator as attributes of the Comment/CommentThread/ThreadCollection classes.
 - Property-based testing for all code that takes arbitrary user input (e.g., and especially, new `Filter`s read from UI input components)
 - Slider for comment navigation. Each stop becomes another comment. Start by dispatching a click for every stop
 - Filter by comment length and provide an option to navigate threads in descending/ascending length.

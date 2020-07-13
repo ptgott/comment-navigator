@@ -1,0 +1,25 @@
+#########################################
+# Headers used in the final user script #
+#########################################
+
+name: "Google Docs Comment Navigator"
+version: 0.1.0
+author: "Paul Gottschling and contributors"
+copyright: Paul Gottschling
+
+description: "Adds a UI component to Google Docs that searches, filters, and navigates between discussion threads."
+
+# TODO: Need to confirm the GitHub repo URL and support URL
+source: www.github.com/ptgott/docs-comment-nav
+supportURL: https://github.com/ptgott/docs-comment-nav/issues
+
+# Run the script whenever a user is editing a Google Docs file
+include: https://docs.google.com/document/d/*/edit
+
+# Run the script after dispatching the DOMContentLoaded event
+# https://www.tampermonkey.net/documentation.php#_run_at
+run-at: document-end
+
+# Disable the sandbox and run the script within the page content
+# https://www.tampermonkey.net/documentation.php#_grant
+grant: none
