@@ -43,6 +43,18 @@ export class CommentNavigator {
    * Adds the component to the context.
    */
   public render(context: HTMLElement): void {
+    // Width at which elements wrap appropriately
+    this.element.style.width = "520px";
+    this.element.style.position = "fixed";
+    this.element.style.top = "100%";
+    this.element.style.left = "50%";
+    this.element.style.transform = "translate(-50%,-100%)";
+    this.element.style.padding = "20px";
+    this.element.style.border = "solid rgb(50,50,50) 3px";
+    this.element.style.borderRadius = "8px";
+    this.element.style.backgroundColor = "white";
+    this.element.style.fontFamily = "sans-serif";
+    this.element.style.fontSize = "14px";
     context.appendChild(this.element);
 
     // Nothing more to render

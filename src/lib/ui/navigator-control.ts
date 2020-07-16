@@ -72,13 +72,17 @@ export class ThreadCount extends NavigatorControl {
   public render(): HTMLElement {
     this.element = document.createElement("span");
     this.element.id = "commentThreadCount";
+    this.element.style.fontSize = "2em";
+    this.element.style.display = "block";
+    this.element.style.verticalAlign = "top";
+    this.element.style.marginBottom = "10px";
     return this.element;
   }
 
   public refresh(fr: FiltrationRecord): void {
     // This assumes the "before" in the FiltrationRecord is the original
     // ThreadCollection.
-    this.element.textContent = `${fr.after.elements.length}/${fr.before.elements.length}`;
+    this.element.textContent = `${fr.after.elements.length}/${fr.before.elements.length} discussions shown`;
   }
 }
 
@@ -136,6 +140,12 @@ export class NavButton extends NavigatorControl {
     this.element = document.createElement("button");
     this.element.textContent = this.text;
     this.element.dataset.direction = this.text;
+
+    this.element.style.marginTop = "10px";
+    this.element.style.marginRight = "5px";
+    this.element.style.width = "80px";
+    this.element.style.height = "30px";
+
     this.element.addEventListener("click", () => {
       // The clickable outer wrapper of the CommentThread element
       // is two levels of parentage up from the CommentThread element
@@ -220,17 +230,38 @@ export function LastButton(): NavButton {
  * CommentThreads.
  */
 export class AuthorSelectBox extends NavigatorControl {
-  private element: HTMLSelectElement;
+  private wrapper: HTMLDivElement;
+  private input: HTMLSelectElement;
 
   constructor() {
     super();
   }
 
   public render(): HTMLElement {
-    this.element = document.createElement("select");
-    this.element.setAttribute("multiple", "true");
-    this.element.setAttribute("size", "5");
-    return this.element;
+    const outerWidth = 200;
+    // the wrapper for the select box and
+    // related elements
+    this.wrapper = document.createElement("div");
+    this.wrapper.style.width = `${outerWidth}px`;
+    this.wrapper.style.display = "inline-block";
+
+    // the select box itself
+    this.input = document.createElement("select");
+    this.input.setAttribute("multiple", "true");
+    this.input.setAttribute("size", "5");
+    this.input.name = "authorSelectBox";
+    this.input.style.width = `${outerWidth - 10}px`;
+
+    // label for the select box
+    const label = document.createElement("label");
+    label.textContent = "Filter by the final author in each discussion";
+    label.setAttribute("for", this.input.name);
+    label.style.display = "block";
+    label.style.marginBottom = "10px";
+
+    this.wrapper.appendChild(label);
+    this.wrapper.appendChild(this.input);
+    return this.wrapper;
   }
 
   /**
@@ -246,11 +277,7 @@ export class AuthorSelectBox extends NavigatorControl {
     // since author selections determine which authors
     // are final authors, we also need to preserve _unselected_
     // author names.
-    interface authorSelection {
-      name: string;
-      selected: boolean;
-    }
-    const selectableAuthorNames = [...this.element.options].map((opt) => {
+    const selectableAuthorNames = [...this.input.options].map((opt) => {
       return {
         name: opt.textContent,
         selected: opt.selected,
@@ -287,7 +314,7 @@ export class AuthorSelectBox extends NavigatorControl {
     // Clear it all and start over for simplicity.
     // If this is too resource-heavy we can delete author name elements
     // selectively and add only new ones.
-    this.element.innerHTML = "";
+    this.input.innerHTML = "";
 
     selectableAuthorNames.forEach((an) => {
       let opt = document.createElement("option");
@@ -297,12 +324,12 @@ export class AuthorSelectBox extends NavigatorControl {
       // Preserve author selection status from the last refresh
       // cycle.
       opt.selected = an.selected;
-      this.element.appendChild(opt);
+      this.input.appendChild(opt);
     });
   }
 
   public readFilters(): FilterCollection {
-    const opts = this.element.getElementsByTagName("option");
+    const opts = this.input.getElementsByTagName("option");
     const selectedAuthors: Array<Filter> = [...opts].reduce((accum, opt) => {
       if (opt.selected == true) {
         return accum.concat(new FinalCommentAuthorNameFilter(opt.textContent));
@@ -340,11 +367,19 @@ export class RegexpSearchBox extends NavigatorControl {
    */
   public render(): HTMLElement {
     this.wrapper = document.createElement("div");
+    this.wrapper.style.display = "inline-block";
+    this.wrapper.style.verticalAlign = "top";
+    this.wrapper.style.width = "200px";
+
     this.textInput = document.createElement("input");
     this.textInput.setAttribute("type", "text");
     this.textInput.setAttribute("name", "regexpSearch");
+
     const label = document.createElement("label");
     label.innerText = "Search by JS regular expression";
+    label.style.display = "block";
+    label.style.marginBottom = "10px";
+
     label.setAttribute("for", "regexpSearch");
     this.wrapper.appendChild(label);
     this.wrapper.appendChild(this.textInput);
@@ -394,6 +429,18 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
 
   public render(): HTMLElement {
     this.element = document.createElement("div");
+    this.element.style.display = "inline-block";
+    this.element.style.width = "100px";
+    this.element.style.verticalAlign = "top";
+    this.element.style.marginLeft = "10px";
+    this.element.style.marginRight = "10px";
+
+    const description = document.createElement("span");
+    description.textContent = "Show only:";
+    description.style.display = "block";
+    description.style.marginBottom = "10px";
+    this.element.appendChild(description);
+
     this.boxRules.forEach((filter, name) => {
       let el = document.createElement("input");
       el.setAttribute("type", "checkbox");
@@ -401,8 +448,9 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
       let lab = document.createElement("label");
       lab.setAttribute("for", name);
       lab.innerText = name;
-      this.element.appendChild(lab);
+
       this.element.appendChild(el);
+      this.element.appendChild(lab);
     });
     return this.element;
   }

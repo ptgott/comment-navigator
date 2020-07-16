@@ -24,10 +24,10 @@ const waitTimeMs = 100;
 
 document.addEventListener("DOMContentLoaded", () => {
   const n = new CommentNavigator([
-    new AuthorSelectBox(),
-    new RegexpSearchBox(),
-    new ThreadTypeCheckBoxes(),
     new ThreadCount(),
+    new AuthorSelectBox(),
+    new ThreadTypeCheckBoxes(),
+    new RegexpSearchBox(),
     FirstButton(),
     PrevButton(),
     NextButton(),

@@ -4,8 +4,6 @@
 
 ## Next up in the MVP (by priority)
 
-- Style the navigator
-
 - Add the ability to toggle the navigator on and off
 
 - Follow JSDoc conventions more consistently in comments (https://jsdoc.app/about-getting-started.html), e.g. enforcing the `/** */` syntax. Then generate docs.
