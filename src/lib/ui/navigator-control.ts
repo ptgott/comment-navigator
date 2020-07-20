@@ -10,13 +10,14 @@ import {
 import { FiltrationRecord } from "../filter/filtration-record";
 import { ThreadCollection } from "../thread/thread-collection";
 import { FilterCollection } from "../filter/filter-collection";
-import { commentBody } from "../constants/selectors";
 
 /** Each NavigatorControl represents a single
  * switch/button/etc you can manipulate within
  * the UI.
  */
-export class NavigatorControl {
+export abstract class NavigatorControl {
+  abstract wrapper: HTMLElement;
+
   constructor() {}
 
   /**
@@ -26,14 +27,11 @@ export class NavigatorControl {
    * NavigatorControls, it's not enough to have the parent
    * simply append the element.
    *
-   * To share state with refresh(), it should probably
-   * assign the returned element to an "element"
+   * To share state with other methods, it should assign
+   * the returned element to a private `wrapper` property.
    * property or similar.
    */
-  public render(): HTMLElement {
-    throw new Error(`render() is not implemented for ${this.constructor.name}`);
-  }
-
+  public abstract render(): HTMLElement;
   /**
    * Some NavigatorControls are form elements that the calling
    * context uses to determine which Filters to apply within
@@ -41,11 +39,7 @@ export class NavigatorControl {
    * readFilters(), which determines the Filters that a user
    * has selected from the NavigatorControl's elements.
    */
-  public readFilters(): FilterCollection {
-    throw new Error(
-      `readFilters() is not implemented for ${this.constructor.name}`
-    );
-  }
+  public abstract readFilters(): FilterCollection;
 
   /**
    * Update any stateful data shown/handled within the component.
@@ -53,10 +47,15 @@ export class NavigatorControl {
    * the original ThreadCollection as well.
    * @param fr FiltrationRecord
    */
-  public refresh(fr: FiltrationRecord): void {
-    throw new Error(
-      `refresh() is not implemented for ${this.constructor.name}`
-    );
+  public abstract refresh(fr: FiltrationRecord): void;
+
+  /**
+   * destroy removes the NavigatorControl from the DOM. It's meant to
+   * be reversed via render() while still preserving the
+   * NavigatorControl in memory.
+   */
+  public destroy(): void {
+    this.wrapper.remove();
   }
 }
 
@@ -67,22 +66,27 @@ export class ThreadCount extends NavigatorControl {
     super();
   }
 
-  private element: HTMLElement;
+  wrapper: HTMLElement;
 
   public render(): HTMLElement {
-    this.element = document.createElement("span");
-    this.element.id = "commentThreadCount";
-    this.element.style.fontSize = "2em";
-    this.element.style.display = "block";
-    this.element.style.verticalAlign = "top";
-    this.element.style.marginBottom = "10px";
-    return this.element;
+    this.wrapper = document.createElement("span");
+    this.wrapper.id = "commentThreadCount";
+    this.wrapper.style.fontSize = "2em";
+    this.wrapper.style.display = "block";
+    this.wrapper.style.verticalAlign = "top";
+    this.wrapper.style.marginBottom = "10px";
+    return this.wrapper;
   }
 
   public refresh(fr: FiltrationRecord): void {
     // This assumes the "before" in the FiltrationRecord is the original
     // ThreadCollection.
-    this.element.textContent = `${fr.after.elements.length}/${fr.before.elements.length} discussions shown`;
+    this.wrapper.textContent = `${fr.after.elements.length}/${fr.before.elements.length} discussions shown`;
+  }
+
+  public readFilters(): FilterCollection {
+    // Returns no filters since it's not an input
+    return new FilterCollection([], "AND");
   }
 }
 
@@ -102,7 +106,7 @@ export class NavButton extends NavigatorControl {
 
   private targetThread: CommentThread;
 
-  private element: HTMLElement;
+  wrapper: HTMLElement;
 
   // Allows read-only access to the target thread
   public target(): CommentThread {
@@ -111,7 +115,7 @@ export class NavButton extends NavigatorControl {
 
   // Allows read-only access to the element
   public controlElement(): HTMLElement {
-    return this.element;
+    return this.wrapper;
   }
 
   /**
@@ -137,16 +141,16 @@ export class NavButton extends NavigatorControl {
   }
 
   public render(): HTMLElement {
-    this.element = document.createElement("button");
-    this.element.textContent = this.text;
-    this.element.dataset.direction = this.text;
+    this.wrapper = document.createElement("button");
+    this.wrapper.textContent = this.text;
+    this.wrapper.dataset.direction = this.text;
 
-    this.element.style.marginTop = "10px";
-    this.element.style.marginRight = "5px";
-    this.element.style.width = "80px";
-    this.element.style.height = "30px";
+    this.wrapper.style.marginTop = "10px";
+    this.wrapper.style.marginRight = "5px";
+    this.wrapper.style.width = "80px";
+    this.wrapper.style.height = "30px";
 
-    this.element.addEventListener("click", () => {
+    this.wrapper.addEventListener("click", () => {
       // The clickable outer wrapper of the CommentThread element
       // is two levels of parentage up from the CommentThread element
       // and has the class ".docos-docoview-tesla-conflict"
@@ -154,7 +158,12 @@ export class NavButton extends NavigatorControl {
         new MouseEvent("click")
       );
     });
-    return this.element;
+    return this.wrapper;
+  }
+
+  public readFilters(): FilterCollection {
+    // Returns no filters since it's not an input
+    return new FilterCollection([], "AND");
   }
 }
 
@@ -230,7 +239,7 @@ export function LastButton(): NavButton {
  * CommentThreads.
  */
 export class AuthorSelectBox extends NavigatorControl {
-  private wrapper: HTMLDivElement;
+  wrapper: HTMLDivElement;
   private input: HTMLSelectElement;
 
   constructor() {
@@ -350,12 +359,7 @@ export class AuthorSelectBox extends NavigatorControl {
 }
 
 export class RegexpSearchBox extends NavigatorControl {
-  // Instead of an element property, we use a wrapper
-  // and a textInput property, the former to locate
-  // the RegexpSearchBox's presence in the DOM, the latter
-  // to interact with the form itself. This way,
-  // we don't need to use the DOM API to find the input field.
-  private wrapper: HTMLElement;
+  wrapper: HTMLElement;
   private textInput: HTMLInputElement;
 
   constructor() {
@@ -397,8 +401,11 @@ export class RegexpSearchBox extends NavigatorControl {
     );
   }
 
-  // We don't implement refresh() here because nothing changes
+  // refresh is no-op here because nothing changes
   // about the input box as the user applies filters.
+  public refresh(fr: FiltrationRecord) {
+    return;
+  }
 }
 
 export class ThreadTypeCheckBoxes extends NavigatorControl {
@@ -410,6 +417,12 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
    */
   private boxRules: Map<string, Filter>;
 
+  /**
+   * A div containing checkboxes. When we refer to element, we
+   * shouldn't assume how many checkboxes it contains.
+   */
+  wrapper: HTMLElement;
+
   constructor() {
     super();
     this.boxRules = new Map();
@@ -417,29 +430,23 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
     this.boxRules.set("Suggestions", new SuggestionsFilter());
   }
 
-  /**
-   * A div containing checkboxes. When we refer to element, we
-   * shouldn't assume how many checkboxes it contains.
-   */
-  private element: HTMLElement;
-
   // refresh() is not implemented since the selection of thread
   // types doens't depend on the state of the available
   // CommentThreads.
 
   public render(): HTMLElement {
-    this.element = document.createElement("div");
-    this.element.style.display = "inline-block";
-    this.element.style.width = "100px";
-    this.element.style.verticalAlign = "top";
-    this.element.style.marginLeft = "10px";
-    this.element.style.marginRight = "10px";
+    this.wrapper = document.createElement("div");
+    this.wrapper.style.display = "inline-block";
+    this.wrapper.style.width = "100px";
+    this.wrapper.style.verticalAlign = "top";
+    this.wrapper.style.marginLeft = "10px";
+    this.wrapper.style.marginRight = "10px";
 
     const description = document.createElement("span");
     description.textContent = "Show only:";
     description.style.display = "block";
     description.style.marginBottom = "10px";
-    this.element.appendChild(description);
+    this.wrapper.appendChild(description);
 
     this.boxRules.forEach((filter, name) => {
       let el = document.createElement("input");
@@ -449,15 +456,15 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
       lab.setAttribute("for", name);
       lab.innerText = name;
 
-      this.element.appendChild(el);
-      this.element.appendChild(lab);
+      this.wrapper.appendChild(el);
+      this.wrapper.appendChild(lab);
     });
-    return this.element;
+    return this.wrapper;
   }
 
   public readFilters(): FilterCollection {
     const checks: Array<HTMLInputElement> = [
-      ...this.element.getElementsByTagName("input"),
+      ...this.wrapper.getElementsByTagName("input"),
     ];
 
     let filters: Array<Filter> = checks.reduce((accum, check) => {
@@ -478,5 +485,11 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
     // You can't search for comments within suggestions or vice
     // versa, so we need to make this an "OR" relationship.
     return new FilterCollection(filters, "OR");
+  }
+
+  // refresh is no-op here because nothing changes
+  // about the input box as the user applies filters.
+  public refresh(fr: FiltrationRecord) {
+    return;
   }
 }

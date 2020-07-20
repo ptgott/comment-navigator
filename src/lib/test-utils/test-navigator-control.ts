@@ -2,14 +2,7 @@ import { NavigatorControl } from "../ui/navigator-control";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
 import { TestFilter } from "../test-utils/test-filter";
-
-// So we can test components that implement (or not)
-// different methods of NavigatorControl, we'll
-// configure TestNavigatorControl on init
-interface TestNavigatorControlConfig {
-  implementRefresh: boolean;
-  implementReadFilters: boolean;
-}
+import { Filter } from "../filter/filter";
 
 /**
  * TestNavigatorControl is used for testing
@@ -19,38 +12,30 @@ interface TestNavigatorControlConfig {
  * (before refresh) or "Refreshed" (after refresh)
  */
 export class TestNavigatorControl extends NavigatorControl {
-  element: HTMLElement;
+  wrapper: HTMLElement;
 
-  constructor(conf: TestNavigatorControlConfig) {
+  constructor() {
     super();
-    this.element = document.createElement("div");
-    this.element.textContent = "Test";
+    this.wrapper = document.createElement("div");
+    this.wrapper.textContent = "Test";
+  }
 
-    if (conf.implementReadFilters) {
-      this.readFilters = () => {
-        return new FilterCollection(
-          [
-            new TestFilter("one"),
-            new TestFilter("two"),
-            new TestFilter("three"),
-          ],
-          "OR"
-        );
-      };
-    }
+  readFilters(): FilterCollection {
+    return new FilterCollection(
+      [new TestFilter("one"), new TestFilter("two"), new TestFilter("three")],
+      "OR"
+    );
+  }
 
-    if (conf.implementRefresh) {
-      // Takes a FiltrationRecord to satisfy the TestNavigatorControl
-      // interface, but otherwise doens't use it. All real
-      // NavigatorControls do, though, so there's no use in changing
-      // the function signature to accommodate this test class.
-      this.refresh = (fr: FiltrationRecord): void => {
-        this.element.textContent = "Refreshed";
-      };
-    }
+  // Takes a FiltrationRecord to satisfy the TestNavigatorControl
+  // interface, but otherwise doens't use it. All real
+  // NavigatorControls do, though, so there's no use in changing
+  // the function signature to accommodate this test class.
+  refresh(fr: FiltrationRecord): void {
+    this.wrapper.textContent = "Refreshed";
   }
 
   render(): HTMLElement {
-    return this.element;
+    return this.wrapper;
   }
 }

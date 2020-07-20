@@ -1,6 +1,5 @@
 import {
   ThreadCount,
-  NavigatorControl,
   NextButton,
   PrevButton,
   NavButton,
@@ -20,6 +19,7 @@ import {
 } from "../test-utils/mock-html";
 import { CommentThread } from "../thread/comment-thread";
 import { SuggestionsFilter, CommentsFilter, Filter } from "../filter/filter";
+import { TestNavigatorControl } from "../test-utils/test-navigator-control";
 
 // This file expects you to be using Jest
 
@@ -28,29 +28,15 @@ beforeEach(() => {
   document.body.innerHTML = null;
 });
 
-describe("NavigatorControl", () => {
-  const notImp = new RegExp(".*[nN]ot [iI]mplemented.*");
-  test("refresh() returns an error on the parent class", () => {
-    const nc = new NavigatorControl();
-    expect(() => {
-      const fr = new FiltrationRecord(null, null, null);
-      nc.refresh(fr);
-    }).toThrowError(notImp);
-  });
-
-  test("readFilters() returns an error on the parent class", () => {
-    const nc = new NavigatorControl();
-    expect(() => {
-      const fr = new FiltrationRecord(null, null, null);
-      nc.readFilters();
-    }).toThrowError(notImp);
-  });
-
-  test("render() returns an error on the parent class", () => {
-    const nc = new NavigatorControl();
-    expect(() => {
-      nc.render();
-    }).toThrowError(notImp);
+// Since NavigatorControl is an abstract class, we test it
+// by using a TestNavigatorControl that contains minimal
+// functionality.
+describe("All NavigatorControls", () => {
+  test("should remove their wrapper from the DOM on destroy()", () => {
+    const tnc = new TestNavigatorControl();
+    document.body.appendChild(tnc.render());
+    tnc.destroy();
+    expect(document.body.innerHTML).not.toContain(tnc.wrapper.innerHTML);
   });
 });
 
@@ -65,6 +51,10 @@ describe("ThreadCount", () => {
   test("should create a span on render", () => {
     const el = threadCount.render();
     expect(el.tagName).toEqual("SPAN");
+  });
+
+  test("should no-op on readFilters", () => {
+    expect(threadCount.readFilters().filters).toHaveLength(0);
   });
 
   test("should show the ratio of filtered threads on refresh", () => {
@@ -98,22 +88,26 @@ describe("ThreadCount", () => {
     );
 
     threadCount.refresh(fr);
-    expect(el.textContent).toEqual(
+    expect(el.textContent).toContain(
       `${expectedFiltered}/${coll.elements.length}`
     );
   });
 });
 
 describe("NavButton", () => {
+  const testNavButton = new NavButton(
+    "Test",
+    (tc: ThreadCollection): CommentThread => {
+      return tc.elements[0];
+    }
+  );
   test("renders a button", () => {
-    const nb = new NavButton(
-      "Test",
-      (tc: ThreadCollection): CommentThread => {
-        return tc.elements[0];
-      }
-    );
-    document.body.appendChild(nb.render());
+    document.body.appendChild(testNavButton.render());
     expect([...document.body.getElementsByTagName("button")].length).toEqual(1);
+  });
+
+  test("should no-op on readFilters", () => {
+    expect(testNavButton.readFilters().filters).toHaveLength(0);
   });
 
   test("dispatches a click to the expected thread", () => {
@@ -126,30 +120,26 @@ describe("NavButton", () => {
       }),
     ].join("\n");
 
-    const nb = new NavButton(
-      "Test",
-      (tc: ThreadCollection): CommentThread => {
-        return tc.elements[0];
-      }
-    );
-    document.body.appendChild(nb.render());
+    document.body.appendChild(testNavButton.render());
     const tc = ParseForThreads(document.body);
     const fc = new FilterCollection([], "AND");
     const fr = new FiltrationRecord(tc, tc, fc);
     const expected = "click";
-    const el = nb.controlElement();
-    nb.refresh(fr);
+    const el = testNavButton.controlElement();
+    testNavButton.refresh(fr);
     let actual;
 
     // The ThreadCollection's outermost wrapper should receive the click.
     // This is a clumsier by more straightforward approach than using
     // Jest mocks.
-    nb.target().element.parentElement.parentElement.addEventListener(
-      "click",
-      (ev: Event) => {
-        actual = ev.type;
-      }
-    );
+    testNavButton
+      .target()
+      .element.parentElement.parentElement.addEventListener(
+        "click",
+        (ev: Event) => {
+          actual = ev.type;
+        }
+      );
     el.dispatchEvent(new MouseEvent("click"));
     expect(actual).toEqual(expected);
   });
@@ -402,6 +392,18 @@ describe("RegexpSearchBox", () => {
     ).toEqual(expect.arrayContaining(["LABEL", "INPUT"]));
   });
 
+  test("is no-op on refresh", () => {
+    const rsb = new RegexpSearchBox();
+    document.body.appendChild(rsb.render());
+    const before = rsb.wrapper.innerHTML;
+    const tc = ParseForThreads(document.body);
+    const nb = NextButton();
+    const fc = new FilterCollection([], "AND");
+    const fr = new FiltrationRecord(tc, tc, fc);
+    rsb.refresh(fr);
+    expect(rsb.wrapper.innerHTML).toEqual(before);
+  });
+
   test("produces a RegexpBodyFilter on read", () => {
     const rsb = new RegexpSearchBox();
     const box = rsb.render();
@@ -425,6 +427,18 @@ describe("ThreadTypeCheckBoxes", () => {
     ).toEqual(expect.arrayContaining(["INPUT", "LABEL", "INPUT", "LABEL"]));
     expect(r.innerHTML).toContain("Comments");
     expect(r.innerHTML).toContain("Suggestions");
+  });
+
+  test("is no-op on refresh", () => {
+    const ttc = new ThreadTypeCheckBoxes();
+    document.body.appendChild(ttc.render());
+    const before = ttc.wrapper.innerHTML;
+    const tc = ParseForThreads(document.body);
+    const nb = NextButton();
+    const fc = new FilterCollection([], "AND");
+    const fr = new FiltrationRecord(tc, tc, fc);
+    ttc.refresh(fr);
+    expect(ttc.wrapper.innerHTML).toEqual(before);
   });
 
   test("reads the expected filters", () => {
