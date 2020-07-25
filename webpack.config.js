@@ -9,19 +9,32 @@ const yaml = require("js-yaml");
 const TerserPlugin = require("terser-webpack-plugin");
 const CleanPlugin = require("clean-webpack-plugin").CleanWebpackPlugin;
 const stripIndents = require("common-tags").stripIndents;
+const process = require("process");
 
 // Define the user script headers
-const headerDoc = yaml.safeLoad(
+let headerDoc = yaml.safeLoad(
   fs.readFileSync(path.resolve(__dirname, "headers.yaml"), {
     encoding: "utf8",
   })
 );
 
+// Dynamically add the source header using an environment variable.
+// Intended to be used after retrieving the URL of the gist
+// dynamically.
+// There's a risk of state pollution, but there's not really a
+// great way to pass state to a webpack config in the middle
+// of a script.
+if (process.env.gistUrl) {
+  headerDoc.source = process.env.gistUrl;
+}
+
+console.log("headerDoc", headerDoc);
+
 // Build the user script headers from headerDoc
 // See: https://wiki.greasespot.net/Metadata_Block#Syntax
 const headers = Object.entries(headerDoc).reduce((accum, entry) => {
   return stripIndents`${accum}
-    // @${entry[0]} ${entry[1]}`;
+  // @${entry[0]} ${entry[1]}`;
 }, "");
 
 module.exports = {

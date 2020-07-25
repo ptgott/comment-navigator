@@ -1,5 +1,8 @@
 #########################################
 # Headers used in the final user script #
+#                                       #
+# Note that the source header is added  #
+# at build time.                        #
 #########################################
 
 name: "Google Docs Comment Navigator"
@@ -8,10 +11,6 @@ author: "Paul Gottschling and contributors"
 copyright: Paul Gottschling
 
 description: "Adds a UI component to Google Docs that searches, filters, and navigates between discussion threads."
-
-# TODO: Need to confirm the GitHub repo URL and support URL
-source: www.github.com/ptgott/docs-comment-nav
-supportURL: https://github.com/ptgott/docs-comment-nav/issues
 
 # Run the script whenever a user is editing a Google Docs file
 include: https://docs.google.com/document/d/*/edit

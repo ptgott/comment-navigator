@@ -9,7 +9,8 @@
     "format": "npx prettier@2.0.5 . --write",
     "build": "webpack",
     "e2e": "bash scripts/e2e-test.sh",
-    "e2e-inspect": "bash scripts/e2e-server-manual.sh"
+    "e2e-inspect": "bash scripts/e2e-server-manual.sh",
+    "to-staging": "scripts/to-staging.js --gistfile=\"static/js_dist/bundle.js\""
   },
   "author": "paul.gottschling@gmail.com",
   "private": true,
@@ -18,6 +19,7 @@
     "@babel/core": "7.9.6",
     "@babel/preset-env": "7.9.6",
     "@babel/preset-typescript": "7.9.0",
+    "@octokit/rest": "18.0.3",
     "@types/common-tags": "1.8.0",
     "@types/expect-puppeteer": "4.4.3",
     "@types/express": "4.17.6",
@@ -27,7 +29,7 @@
     "@types/node": "13.13.4",
     "@types/puppeteer": "3.0.0",
     "@types/terser-webpack-plugin": "3.0.0",
-    "clean-webpack-plugin": "^3.0.0",
+    "clean-webpack-plugin": "3.0.0",
     "common-tags": "1.8.0",
     "expect-puppeteer": "4.4.0",
     "jest": "26.0.1",
@@ -39,7 +41,8 @@
     "ts-loader": "7.0.5",
     "typescript": "3.9.3",
     "webpack": "4.43.0",
-    "webpack-cli": "3.3.11"
+    "webpack-cli": "3.3.11",
+    "yargs": "15.4.1"
   },
   "dependencies": {
     "express": "4.17.1",
