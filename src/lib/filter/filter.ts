@@ -11,6 +11,8 @@ import * as selectors from "../constants/selectors";
  *
  * Child classes should only _need_ to implement matches(),
  * plus any supporting functions.
+ * @property {string} criterion - the caller-defined value
+ * to match CommentThreads against
  */
 export class Filter {
   public criterion: string;
@@ -23,18 +25,22 @@ export class Filter {
   }
 
   /**
-   * This is the meat of each Filter implementation. It checks
+   * matches is the meat of each Filter implementation. It checks
    * a given CommentThread against the criterion. The return
    * value indicates whether the thread matches.
    * @param thread the CommentThread to evaluate for a match
+   * @returns {boolean} whether the CommentThread passes through
+   * the filter.
    */
   matches(thread: CommentThread): boolean {
     throw new Error("Not implemented");
   }
 
   /**
-   * use both accepts and returns a ThreadCollection to allow chaining.
+   * use implements the filter. It both accepts and returns a
+   * ThreadCollection to allow chaining.
    * @param collection a ThreadCollection
+   * @returns {ThreadCollection} the result of appying the Filter
    */
   public use(collection: ThreadCollection): ThreadCollection {
     return new ThreadCollection(
@@ -49,9 +55,9 @@ export class Filter {
 }
 
 /**
- * filterByAuthor returns the comment thread elements whose
- * final comments were written by the author with the given
- * name. This is usually a string of the format
+ * FinalCommentAuthorNameFilter returns the comment thread
+ * elements whose final comments were written by the author
+ * with the given name. This is usually a string of the format
  * "<FIRST_NAME> <LAST_NAME"
  */
 export class FinalCommentAuthorNameFilter extends Filter {
@@ -63,6 +69,12 @@ export class FinalCommentAuthorNameFilter extends Filter {
     super(criterion);
   }
 
+  /**
+   * matches checks whether the final comment in the thread
+   * was written by the given author.
+   * @param thread {CommentThread}
+   * @returns {boolean}
+   */
   matches(thread: CommentThread): boolean {
     // No author can possibly have a blank name.
     // If the criterion is blank, but the filter exists,
@@ -90,6 +102,11 @@ export class SuggestionsFilter extends Filter {
     super(null); // Doesn't use any user-defined criteria
   }
 
+  /**
+   * matches accepts any discussions that are based on a suggestion.
+   * @param {CommentThread} thread
+   * @returns {boolean}
+   */
   matches(thread: CommentThread): boolean {
     const suggestion: Element = thread.element.querySelector(
       selectors.suggestionThread
@@ -98,11 +115,20 @@ export class SuggestionsFilter extends Filter {
   }
 }
 
+/**
+ * CommentsFilter shows only comment threads that begin with a
+ * comment (not a suggestion).
+ */
 export class CommentsFilter extends Filter {
   constructor() {
     super(null);
   }
 
+  /**
+   * matches accepts any discussions that are based on a comment.
+   * @param {CommentThread} thread
+   * @returns {boolean}
+   */
   matches(thread: CommentThread): boolean {
     const commentEls: Element = thread.element.querySelector(
       selectors.commentThread
@@ -183,12 +209,14 @@ export class RegexpBodyFilter extends Filter {
   }
 }
 
-// SelectedThreadFilter returns the thread that is currently active.
-// It's only really useful in the contex of another ThreadCollection.
-// We're inheriting from Filter rather than making this a method of
-// ThreadCollection because it fits the Filter interface well.
-// If this approach starts to get messy, though, we should make
-// this a method of ThreadCollection before it's too late.
+/**
+ * SelectedThreadFilter returns the thread that is currently active.
+ * It's only really useful in the contex of another ThreadCollection.
+ * We're inheriting from Filter rather than making this a method of
+ * ThreadCollection because it fits the Filter interface well.
+ * If this approach starts to get messy, though, we should make
+ * this a method of ThreadCollection before it's too late.
+ */
 export class SelectedThreadFilter extends Filter {
   constructor() {
     super(null);

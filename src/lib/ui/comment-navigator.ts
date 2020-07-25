@@ -3,24 +3,18 @@ import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
 
 /**
- * Represents the UI component for the comment navigator.
- * Note that it's up to the caller of the constructor
+ * CommentNavigator represents the UI component for the
+ * comment navigator. Note that it's up to the caller of the constructor
  * to also call refresh() and render(). This means that the
  * caller should call window.setInterval (or some other means)
  * to periodically refresh the state of the component.
+ *
+ * @property {HTMLElement} element - The HTML component itself.
+ * @property {HTMLElement} minButton - Component used for minimizing the navigator
  */
 export class CommentNavigator {
-  /**
-   * The HTML component itself.
-   * render() adds it to the DOM.
-   * refresh() updats its information without
-   * re-rendering.
-   */
   public element: HTMLElement;
 
-  /**
-   * Button used for minimizing the navigator
-   */
   public minButton: HTMLElement;
 
   public minimized: boolean;
@@ -98,7 +92,8 @@ export class CommentNavigator {
   }
 
   /**
-   * Adds the component to the context.
+   * render adds the component to the context.
+   * @param {HTMLElement} context - where to append the component
    */
   public render(context: HTMLElement): void {
     context.appendChild(this.element);
@@ -108,7 +103,8 @@ export class CommentNavigator {
   }
 
   /**
-   * Minimizes the element
+   * minimize minimizes the element, letting the user see more of the
+   * document.
    * @param {number} duration - the number of milliseconds to wait before
    * the element is fully minimized.
    * @param {()=>any} callback - a function to call after minimizing
@@ -132,7 +128,7 @@ export class CommentNavigator {
   /**
    * toggleMinimize alternates between minimizing and maximizing
    * the CommentNavigator depending on its current state.
-   * @param duration {number} the number of milliseconds it takes to
+   * @param {number} duration the number of milliseconds it takes to
    * minimize
    */
   public toggleMinimize(duration: number) {
@@ -144,8 +140,8 @@ export class CommentNavigator {
   }
 
   /**
-   * Updates the data within element without re-rendering.
-   * @param fr FiltrationRecord. You'll need to apply
+   * refresh updates the data within element without re-rendering.
+   * @param {FiltrationRecord} fr You'll need to apply
    * filters before calling refresh.
    */
   public refresh(fr: FiltrationRecord): void {
@@ -155,7 +151,7 @@ export class CommentNavigator {
   }
 
   /**
-   * Reads NavigatorControls for user-selected filter options.
+   * readFilters read NavigatorControls for user-selected filter options.
    * It exists as a single interface to each NavigatorControl's
    * readFilters() method.
    */

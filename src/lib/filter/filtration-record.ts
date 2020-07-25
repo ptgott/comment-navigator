@@ -1,13 +1,21 @@
-// FiltrationRecord contains information about
-// the filtering of ThreadCollections. UI componets
-// use it to get information about the ThreadCollections
-// processed through a FilterCollection without mutating
-// FiltrationRecord publishes metadata _about_ a filtration
-// without callers having to re-apply the filters.
 import { ThreadCollection } from "../thread/thread-collection";
 import { FilterCollection } from "./filter-collection";
 
-// any of these other classes.
+/**
+ * FiltrationRecord contains information about
+ * the filtering of ThreadCollections. UI componets
+ * use it to get information about the ThreadCollections
+ * processed through a FilterCollection without mutating
+ * any of these other classes.
+ *
+ * FiltrationRecord publishes metadata _about_ a filtration
+ * without callers having to re-apply the filters.
+ * @property {ThreadCollection} before - the state of discussions
+ * in the document prior to applying the filters
+ * @property {ThreadCollection} after - the state of discussions
+ * in the document after applying the filters
+ * @property {FilterCollection} filters - the filters to apply
+ */
 export class FiltrationRecord {
   public before: ThreadCollection;
   public after: ThreadCollection;

@@ -39,9 +39,10 @@ export interface ChildCommentOptions {
 }
 
 /**
- * Creates an HTML string for use with innerHTML. Don't call this directly
- * unless you really need to, since it's properly wrapped in other HTML
- * when you call MockSuggestionThread() or MockCommentThread().
+ * MockChildComment Creates an HTML string for use with innerHTML.
+ * Don't call this directly unless you really need to, since it's
+ * properly wrapped in HTML when you call MockSuggestionThread()
+ * or MockCommentThread().
  * @param options ChildCommentOptions
  */
 export function MockChildComment(options: ChildCommentOptions): string {
@@ -90,7 +91,7 @@ export function MockChildComment(options: ChildCommentOptions): string {
 }
 
 /**
- * Creates an HTML string for use with innerHTML.
+ * MockSuggestionThread creates an HTML string for use with innerHTML.
  * @param options SuggestionThreadOptions
  */
 export function MockSuggestionThread(options: SuggestionThreadOptions): string {
@@ -202,7 +203,7 @@ export function MockSuggestionThread(options: SuggestionThreadOptions): string {
 }
 
 /**
- * Creates an HTML string for use with innerHTML.
+ * MockCommentThread creates an HTML string for use with innerHTML.
  * @param options CommentThreadOptions
  */
 export function MockCommentThread(options: CommentThreadOptions): string {

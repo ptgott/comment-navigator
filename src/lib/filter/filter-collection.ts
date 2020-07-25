@@ -12,6 +12,7 @@ type Filterable = Filter | FilterCollection;
 /**
  * FilterCollection is responsible for chaining filters
  * and reporting metadata about that chain.
+ * @property {Filterable[]} filters - the filters in the collection
  */
 export class FilterCollection {
   public filters: Array<Filterable>;
@@ -39,9 +40,10 @@ export class FilterCollection {
   }
 
   /**
-   * The variant of use() that only outputs a CommentThread
+   * useAnd is the variant of use() that only outputs a CommentThread
    * if all filters in the collection apply to it.
    * @param collection the ThreadCollection to apply the filters to.
+   * @returns {ThreadCollection} the result of applying the filters
    */
   private useAnd(collection: ThreadCollection): ThreadCollection {
     // There's no special logic here: just apply each filter
@@ -51,9 +53,10 @@ export class FilterCollection {
     }, collection);
   }
 
-  /** The variant of use() that outputs a CommentThread if
+  /** useOr is the variant of use() that outputs a CommentThread if
    * any of the filters in the collection apply to it.
    * @param collection the ThreadCollection to apply the filters to.
+   * @returns {ThreadCollection} the result of applying the filters.
    */
   private useOr(collection: ThreadCollection): ThreadCollection {
     // Put the results of all filters in a single array. No filter
@@ -69,10 +72,12 @@ export class FilterCollection {
   }
 
   /**
-   * This is the function signature of Filter.use().
-   * Theoretically you should be able to apply
-   * a FilterChain and use the results to an
-   * individual filter.
+   * use applies the filter collection. Because individual
+   * Filters also have this method, you should be able to
+   * chain Filters and FilterCollections.
+   * @param {ThreadCollection} collection - the ThreadCollection
+   * to apply the filters to.
+   * @returns {ThreadCollection} - the result of applying the filters
    */
   public use(collection: ThreadCollection): ThreadCollection {
     // Using a map to allow for simple expansion, but

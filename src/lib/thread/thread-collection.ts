@@ -8,6 +8,7 @@ import { CommentThread } from "./comment-thread";
  * There are other ways to create ThreadCollections too, such
  * as by using a Filter.
  * @param bod is the document body.
+ * @returns {ThreadCollection}
  */
 export function ParseForThreads(bod: HTMLElement): ThreadCollection {
   const elements: Array<Element> = [...bod.querySelectorAll(selectors.thread)];
@@ -18,25 +19,19 @@ export function ParseForThreads(bod: HTMLElement): ThreadCollection {
 }
 
 /**
- * Used to read the state of a Google Doc's comment threads
- * from the DOM and provide metadata about all the
- * comment threads at once.
- *
- * Use CommentThread to return metadata for a specific
- * thread. Use Filter when you want to return a subset of
- * threads.
+ * ThreadCollection represents the global the state of a Google Doc's
+ * comment threads within the DOM at a particular moment.
+ * @property {CommentThread[]} elements - the comment threads (including
+ * those that begin with a suggestion) in this state of the document.
  */
-// TODO: consider renaming ThreadCollection to something more
-// descriptive of what this is and why you'd use it.
-// Maybe ThreadState or something similar Or GlobalThreadState?
 export class ThreadCollection {
   public elements: Array<CommentThread>;
 
   /**
    * Create a new ThreadCollection to read the state of
    * a Google Doc's comment threads.
-   * @param elements An array of CommentThreads, created
-   * through various means.
+   * @param {CommentThread[]} elements - the CommentThreads to gather
+   * within the ThreadCollection
    */
   constructor(elements: Array<CommentThread>) {
     this.elements = elements;
@@ -65,8 +60,10 @@ export class ThreadCollection {
   }
 
   /**
-   * authorNames returns the names of all unique authors
+   * finalCommentAuthorNames returns the names of all unique authors
    * who've written the final comments within comment threads.
+   * @returns {Array<string>} - the names of the final authors within
+   * each thread, as displayed within their comments.
    */
   finalCommentAuthorNames(): Array<string> {
     const allAuths = this.elements.map((el) => {

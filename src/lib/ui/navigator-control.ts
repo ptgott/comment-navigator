@@ -11,9 +11,13 @@ import { FiltrationRecord } from "../filter/filtration-record";
 import { ThreadCollection } from "../thread/thread-collection";
 import { FilterCollection } from "../filter/filter-collection";
 
-/** Each NavigatorControl represents a single
+/** NavigatorControl represents a single
  * switch/button/etc you can manipulate within
  * the UI.
+ * @property {HTMLElement} wrapper - the outermost element
+ * within the UI component. We should be able to manage
+ * all other elements in the UI component by referring to
+ * its wrapper.
  */
 export abstract class NavigatorControl {
   abstract wrapper: HTMLElement;
@@ -21,28 +25,22 @@ export abstract class NavigatorControl {
   constructor() {}
 
   /**
-   * This needs to return an HTMLElement so its parent
-   * can append the element to the right place. Since
-   * NavigatorControls can have child
-   * NavigatorControls, it's not enough to have the parent
-   * simply append the element.
-   *
-   * To share state with other methods, it should assign
-   * the returned element to a private `wrapper` property.
-   * property or similar.
+   * render produces the DOM element that does the work of the
+   * NavigatorControl.
+   * @returns {HTMLElement} - the control component, which you'll
+   * add to the DOM later.
    */
   public abstract render(): HTMLElement;
+
   /**
-   * Some NavigatorControls are form elements that the calling
-   * context uses to determine which Filters to apply within
-   * the CommentNavigator. These NavigatorControls implement
-   * readFilters(), which determines the Filters that a user
+   * readFilters finds out which Filters a user
    * has selected from the NavigatorControl's elements.
+   * @returns {FilterCollection}
    */
   public abstract readFilters(): FilterCollection;
 
   /**
-   * Update any stateful data shown/handled within the component.
+   * refresh updates any stateful data shown/handled within the component.
    * We apply the filters here so child components can access
    * the original ThreadCollection as well.
    * @param fr FiltrationRecord
@@ -119,7 +117,7 @@ export class NavButton extends NavigatorControl {
   }
 
   /**
-   *
+   * @param {string} text - the display text of the button
    * @param targetFunc is a function that identifies the next thread
    * to navigate to. It accepts a ThreadCollection and returns a
    * CommentThread. Implementations may end up using
@@ -273,13 +271,6 @@ export class AuthorSelectBox extends NavigatorControl {
     return this.wrapper;
   }
 
-  /**
-   * We draw the option elements for the select box from
-   * the post-filtration CommentThreads. This makes it clearer
-   * which options the user can choose from when applying
-   * multiple filters via the CommentNavigator's input elements.
-   * @param fr a FiltrationRecord
-   */
   public refresh(fr: FiltrationRecord): void {
     // We don't want the refresh to erase author selections.
     // Record which authors are selected for later. However,
@@ -352,12 +343,17 @@ export class AuthorSelectBox extends NavigatorControl {
       selectedAuthors.push(new FinalCommentAuthorNameFilter(""));
     }
     // Since the final comment in each thread has only a single author,
-    // it doens't make sense to apply multiple filters here. Show all
+    // it doesn't make sense to apply multiple filters here. Show all
     // authors that pass through one FinalCommentAuthorNameFilter.
     return new FilterCollection(selectedAuthors, "OR");
   }
 }
 
+/**
+ * RegexpSearchBox is a text input that lets users
+ * enter regular expressions for searching the body of
+ * comments in the document.
+ */
 export class RegexpSearchBox extends NavigatorControl {
   wrapper: HTMLElement;
   private textInput: HTMLInputElement;
@@ -367,7 +363,7 @@ export class RegexpSearchBox extends NavigatorControl {
   }
 
   /**
-   * Returns a div containing an input box and its label
+   * render returns a div containing an input box and its label
    */
   public render(): HTMLElement {
     this.wrapper = document.createElement("div");
@@ -401,13 +397,19 @@ export class RegexpSearchBox extends NavigatorControl {
     );
   }
 
-  // refresh is no-op here because nothing changes
-  // about the input box as the user applies filters.
+  /**
+   * refresh is no-op here because nothing changes
+   * about the input box as the user applies filters.
+   */
   public refresh(fr: FiltrationRecord) {
     return;
   }
 }
 
+/**
+ * ThreadTypeCheckBoxes enable the user to see only
+ * comment or suggestion threads by clicking on checkboxes.
+ */
 export class ThreadTypeCheckBoxes extends NavigatorControl {
   /**
    * boxRules determines how many check boxes to include, one
@@ -429,10 +431,6 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
     this.boxRules.set("Comments", new CommentsFilter());
     this.boxRules.set("Suggestions", new SuggestionsFilter());
   }
-
-  // refresh() is not implemented since the selection of thread
-  // types doens't depend on the state of the available
-  // CommentThreads.
 
   public render(): HTMLElement {
     this.wrapper = document.createElement("div");
@@ -487,8 +485,11 @@ export class ThreadTypeCheckBoxes extends NavigatorControl {
     return new FilterCollection(filters, "OR");
   }
 
-  // refresh is no-op here because nothing changes
-  // about the input box as the user applies filters.
+  /**
+   * refresh is no-op here because nothing changes
+   * about the input box as the user applies filters.
+   * @param {FiltrationRecord} fr
+   */
   public refresh(fr: FiltrationRecord) {
     return;
   }

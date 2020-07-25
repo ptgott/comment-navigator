@@ -27,7 +27,7 @@ export class TestNavigatorControl extends NavigatorControl {
     );
   }
 
-  // Takes a FiltrationRecord to satisfy the TestNavigatorControl
+  // refresh takes a FiltrationRecord to satisfy the TestNavigatorControl
   // interface, but otherwise doens't use it. All real
   // NavigatorControls do, though, so there's no use in changing
   // the function signature to accommodate this test class.

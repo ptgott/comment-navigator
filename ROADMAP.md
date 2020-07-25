@@ -4,8 +4,6 @@
 
 ## Next up in the MVP (by priority)
 
-- Follow JSDoc conventions more consistently in comments (https://jsdoc.app/about-getting-started.html), e.g. enforcing the `/** */` syntax. Then generate docs.
-
 - Make this easily downloadable and determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php): Host this on a gist!
 
   - Gists are GitHub repos--you can create/update them via the API (https://docs.github.com/en/rest/reference/gists).
