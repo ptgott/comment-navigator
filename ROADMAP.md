@@ -2,9 +2,9 @@
 
 ## Doing now
 
-## Next up in the MVP (by priority)
-
 - Dogfood the user script in staging
+
+## Next up in the MVP (by priority)
 
 - Add a license
 

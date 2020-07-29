@@ -20,9 +20,12 @@ function readAndRefresh(n: CommentNavigator) {
   n.refresh(new FiltrationRecord(threadsBefore, threadsAfter, fc));
 }
 
-const waitTimeMs = 100;
+// The script is designed to use the "@run-at document-end" user script header
+// which runs on or after the the DOMContentLoaded event was dispatched.
+// https://www.tampermonkey.net/documentation.php#_run_at
+(() => {
+  const waitTimeMs = 100;
 
-document.addEventListener("DOMContentLoaded", () => {
   const n = new CommentNavigator([
     new ThreadCount(),
     new AuthorSelectBox(),
@@ -45,4 +48,4 @@ document.addEventListener("DOMContentLoaded", () => {
   window.setInterval(() => {
     readAndRefresh(n);
   }, waitTimeMs);
-});
+})();
