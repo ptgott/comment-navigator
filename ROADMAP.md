@@ -4,11 +4,16 @@
 
 ## Next up in the MVP (by priority)
 
-- Make this easily downloadable and determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php): Host this on a gist!
+- Dogfood the user script in staging
 
-  - Gists are GitHub repos--you can create/update them via the API (https://docs.github.com/en/rest/reference/gists).
-  - The gist should include the URL of the main repo in case users want to contribute! (Need to edit the bundle banner)
-  - Look into using GitHub Actions (e.g. this one: https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. GitHub Actions is free for public repos (https://github.com/features/actions). Trigger the action when creating a release.
+- Add a license
+
+- Work out a deployment process.
+
+  - Set up the GitHub action to sync with a public gist. Consider using this one (https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. GitHub Actions is free for public repos (https://github.com/features/actions). Trigger the action when creating a release.
+  - Determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php)
+
+- Release v1
 
 ## Features for after the MVP
 
