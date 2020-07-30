@@ -16,6 +16,11 @@ import {
 // We make sure the content loads fully before running tests,
 // so you shouldn't need to adjust the timeout that much.
 
+// 20 is the padding of the comment navigator
+// TODO: Connect this value to the actual padding of the navigator
+const navigatorPadding = 20;
+const navigatorSelector = "div#googleDocsCommentNavigator";
+const minimizeSelector = `${navigatorSelector} span:nth-of-type(1)`;
 const fixture = safeLoad(
   fs.readFileSync(path.join("src", "e2e", "fixture.yaml"), "utf8")
 );
@@ -31,7 +36,38 @@ async function sleep(ms: number): Promise<(PromiseLike: any) => void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const navigatorSelector = "div#googleDocsCommentNavigator";
+async function maximizeTheNavigator(): Promise<void> {
+  await page.click(minimizeSelector);
+  // This is a gross hack to wait until the navigator is maximized.
+  // In the production version of the script, it animates for 1s.
+  // TODO: Parameterize the animation interval for e2e tests.
+  // TODO: Find a less brittle way of waiting until the nav component
+  // is ready.
+  await sleep(1000);
+}
+
+async function getNavigatorHeight(): Promise<number> {
+  let heights;
+  try {
+    // Since page.evaluate can only return strings, we do some
+    // really gross serialization, then parse.
+    heights = await page.evaluate((selector) => {
+      const navEl = document.querySelector(selector);
+      const navHeight = navEl.getBoundingClientRect().top + scrollY;
+      // The body itself doesn't have a height because all elements
+      // have fixed or absolute positioning, so we compensate.
+      const bodyHeight = window.innerHeight + scrollY;
+      return `${navHeight},${bodyHeight}`;
+    }, navigatorSelector);
+  } catch (err) {
+    fail(err);
+  }
+  heights = heights.split(",").map((h) => {
+    return parseInt(h.replace("px", ""));
+  });
+  const navHeight = heights[1] - heights[0];
+  return navHeight;
+}
 
 beforeEach(async () => {
   // If you don't call resetPage(), you'll get weird state pollution in the
@@ -61,99 +97,134 @@ describe("When a user loads the navigator UI", () => {
     }
   });
 
-  test("there should be a count of all threads", async () => {
-    try {
-      const c = await threadCounterValue();
-      await expect(c).toMatch(`${fixture.length}/${fixture.length}`, {
-        timeout: 500,
-      });
-    } catch (err) {
-      fail(err);
-    }
+  test("the navigator component should be minimized", async () => {
+    const navHeight = await getNavigatorHeight();
+
+    expect(navHeight).toBeLessThanOrEqual(navigatorPadding);
   });
 
-  test("The author selection box should list all final comment authors", async () => {
-    let expectedBoxAuthors = fixture.map((obj: threadConfig) => {
-      return obj.replies.length > 0
-        ? obj.replies[obj.replies.length - 1].author
-        : obj.author;
+  describe("After maximizing the navigator", () => {
+    beforeEach(async () => {
+      try {
+        await maximizeTheNavigator();
+      } catch (err) {
+        throw new Error(
+          `Encountered a problem maximizing the navigator:\n${err}`
+        );
+      }
     });
 
-    expectedBoxAuthors = [...new Set(expectedBoxAuthors)]; //dedup
+    test("pressing the escape key should minimize it", async () => {
+      await page.keyboard.press("Escape");
+      await sleep(1000);
+      const navHeight = await getNavigatorHeight();
+      expect(navHeight).toBeLessThanOrEqual(navigatorPadding);
+    });
 
-    try {
-      // Because page.evaluate has to return a string, we
-      // need to use crude serialization and splitting to
-      // get a list of author names.
-      const authorsSerialized = await page.evaluate(async () => {
-        return [...document.querySelectorAll("select option")].reduce(
-          (accum: string, opt: Element, i: number, ary: Array<Element>) => {
-            // Add a delimeter after every element but the last--
-            // otherwise splitting creates a final empty string element.
-            if (i < ary.length - 1) {
-              accum = accum + opt.textContent + "&&&&&";
-            } else {
-              accum = accum + opt.textContent;
-            }
-            return accum;
-          },
-          ""
-        );
-      });
-      const actualBoxAuthors = authorsSerialized.split("&&&&&");
-      expect(actualBoxAuthors).toEqual(
-        expect.arrayContaining(expectedBoxAuthors)
-      );
-
-      expect(expectedBoxAuthors.length).toEqual(actualBoxAuthors.length);
-    } catch (err) {
-      fail(err);
-    }
-  });
-
-  test("selecting an author should change the thread counter accordingly", async () => {
-    const desiredAuthor = "Fake Fakesley";
-    try {
-      const indexWithinOptions = await page.evaluate((auth) => {
-        const opts = [...document.body.querySelectorAll("select option")];
-        const desiredElement = [
-          ...document.body.querySelectorAll("select option"),
-        ].find((el) => {
-          return el.textContent == auth;
+    test("there should be a count of all threads", async () => {
+      try {
+        const c = await threadCounterValue();
+        await expect(c).toMatch(`${fixture.length}/${fixture.length}`, {
+          timeout: 500,
         });
-        return opts.indexOf(desiredElement);
-      }, desiredAuthor);
+      } catch (err) {
+        fail(err);
+      }
+    });
 
-      await page.click(`select option:nth-child(${indexWithinOptions})`);
-      // Add an arbitrary wait period to allow the navigator to refresh
+    test("The author selection box should list all final comment authors", async () => {
+      let expectedBoxAuthors = fixture.map((obj: threadConfig) => {
+        return obj.replies.length > 0
+          ? obj.replies[obj.replies.length - 1].author
+          : obj.author;
+      });
+
+      expectedBoxAuthors = [...new Set(expectedBoxAuthors)]; //dedup
+
+      try {
+        // Because page.evaluate has to return a string, we
+        // need to use crude serialization and splitting to
+        // get a list of author names.
+        const authorsSerialized = await page.evaluate(async () => {
+          return [...document.querySelectorAll("select option")].reduce(
+            (accum: string, opt: Element, i: number, ary: Array<Element>) => {
+              // Add a delimeter after every element but the last--
+              // otherwise splitting creates a final empty string element.
+              if (i < ary.length - 1) {
+                accum = accum + opt.textContent + "&&&&&";
+              } else {
+                accum = accum + opt.textContent;
+              }
+              return accum;
+            },
+            ""
+          );
+        });
+        const actualBoxAuthors = authorsSerialized.split("&&&&&");
+        expect(actualBoxAuthors).toEqual(
+          expect.arrayContaining(expectedBoxAuthors)
+        );
+
+        expect(expectedBoxAuthors.length).toEqual(actualBoxAuthors.length);
+      } catch (err) {
+        fail(err);
+      }
+    });
+
+    test("selecting an author should change the thread counter accordingly", async () => {
+      const desiredAuthor = "Fake Fakesley";
+      try {
+        const indexWithinOptions = await page.evaluate((auth) => {
+          const opts = [...document.body.querySelectorAll("select option")];
+          const desiredElement = [
+            ...document.body.querySelectorAll("select option"),
+          ].find((el) => {
+            return el.textContent == auth;
+          });
+          return opts.indexOf(desiredElement);
+        }, desiredAuthor);
+
+        await page.click(`select option:nth-child(${indexWithinOptions})`);
+        // Add an arbitrary wait period to allow the navigator to refresh
+        await sleep(300);
+        const c = await threadCounterValue();
+        await expect(c).toMatch(`2/${fixture.length}`);
+      } catch (err) {
+        fail(err);
+      }
+    });
+
+    test("adding a regexp search term should change the thread counter accordingly", async () => {
+      // Looking for all comments that end with a question
+      await page.type(
+        `${navigatorSelector} input[name="regexpSearch"]`,
+        "\\?$" // Need to escape the escape character or Puppeteer will remove it
+      );
       await sleep(300);
       const c = await threadCounterValue();
-      await expect(c).toMatch(`2/${fixture.length}`);
-    } catch (err) {
-      fail(err);
-    }
-  });
+      await expect(c).toMatch(`3/${fixture.length}`);
+    });
 
-  test("adding a regexp search term should change the thread counter accordingly", async () => {
-    // Looking for all comments that end with a question
-    await page.type(
-      `${navigatorSelector} input[name="regexpSearch"]`,
-      "\\?$" // Need to escape the escape character or Puppeteer will remove it
-    );
-    await sleep(300);
-    const c = await threadCounterValue();
-    await expect(c).toMatch(`3/${fixture.length}`);
-  });
-
-  test("choosing only suggestions changes the thread counter", async () => {
-    await page.click(`${navigatorSelector} input[name="Suggestions"]`);
-    await sleep(300);
-    const c = await threadCounterValue();
-    await expect(c).toMatch(`3/${fixture.length}`);
+    test("choosing only suggestions changes the thread counter", async () => {
+      await page.click(`${navigatorSelector} input[name="Suggestions"]`);
+      await sleep(300);
+      const c = await threadCounterValue();
+      await expect(c).toMatch(`3/${fixture.length}`);
+    });
   });
 });
 
 describe("The navigation buttons", () => {
+  beforeEach(async () => {
+    try {
+      await maximizeTheNavigator();
+    } catch (err) {
+      throw new Error(
+        `Encountered a problem maximizing the navigator:\n${err}`
+      );
+    }
+  });
+
   test("Clicking a navigation button should activate the expected thread", async () => {
     interface testCase {
       startingIndex: number; // Which thread to begin from

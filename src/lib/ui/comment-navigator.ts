@@ -1,6 +1,7 @@
-import { NavigatorControl, ThreadCount } from "./navigator-control";
+import { NavigatorControl } from "./navigator-control";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
+import { ParseForThreads } from "../thread/thread-collection";
 
 /**
  * CommentNavigator represents the UI component for the
@@ -11,13 +12,15 @@ import { FilterCollection } from "../filter/filter-collection";
  *
  * @property {HTMLElement} element - The HTML component itself.
  * @property {HTMLElement} minButton - Component used for minimizing the navigator
+ * @property {HTMLElement} context - the Comment Navigator will render itself
+ * as a child of this element, and search this element for discussion threads.
  */
 export class CommentNavigator {
   public element: HTMLElement;
-
+  public context: HTMLElement;
   public minButton: HTMLElement;
-
   public minimized: boolean;
+  private refreshInterval: number;
 
   /**
    * For rendering and refreshing, CommentNavigator
@@ -29,12 +32,14 @@ export class CommentNavigator {
 
   /**
    *
-   * @param subcomponents are the NavigatorControls to
+   * @param {Array<NavigatorControl>} subcomponents are the NavigatorControls to
    * render within the CommentNavigator. These will be
    * rendered in the order given in the array.
+   * @param {number} refreshInterval how often to parse the DOM, apply
+   * filters, and update the NavigatorControl
    */
-  constructor(subcomponents: Array<NavigatorControl>) {
-    this.minimized = false;
+  constructor(subcomponents: Array<NavigatorControl>, refreshInterval: number) {
+    this.refreshInterval = refreshInterval;
 
     this.element = document.createElement("div");
 
@@ -72,6 +77,15 @@ export class CommentNavigator {
       this.toggleMinimize.bind(this, 1000)
     );
 
+    document.addEventListener("keydown", (ev) => {
+      // Escape key. See:
+      // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
+      if (ev.key === "Escape") {
+        console.log(ev.key);
+        this.minimize(1000);
+      }
+    });
+
     this.element.id = "googleDocsCommentNavigator";
     this.subcomponents = subcomponents;
   }
@@ -82,13 +96,10 @@ export class CommentNavigator {
    * maximize(), for example.
    */
   public renderSubcomponents(): void {
-    this.minimized = false;
     // Nothing more to render
     if (this.subcomponents == null) {
       return;
     }
-
-    this.element.style.transform = "translate(-50%,-100%)";
 
     this.subcomponents.forEach((sc) => {
       this.element.appendChild(sc.render());
@@ -100,10 +111,50 @@ export class CommentNavigator {
    * @param {HTMLElement} context - where to append the component
    */
   public render(context: HTMLElement): void {
+    this.context = context;
     context.appendChild(this.element);
     this.element.appendChild(this.minButton);
 
     this.renderSubcomponents();
+
+    // Begin with the component minimized by default. Don't animate
+    // the minimization since it's the first sight of the component.
+    this.minimize(0);
+
+    this.readAndRefresh();
+
+    // Start the readAndRefresh loop
+    window.setInterval(() => {
+      this.readAndRefresh();
+    }, this.refreshInterval);
+  }
+
+  /**
+   * readAndRefresh goes through one full update cycle of the
+   * CommentNavigator. It parses the context for discussion threads,
+   * filters them with filters from the component, and uses the filters
+   * to refresh the Comment Navigator.
+   *
+   * Intended to be used with window.setInterval.
+   */
+  private readAndRefresh(): void {
+    const threadsBefore = ParseForThreads(this.context);
+    const fc = this.readFilters();
+    const threadsAfter = fc.use(threadsBefore);
+    this.refresh(new FiltrationRecord(threadsBefore, threadsAfter, fc));
+  }
+
+  /**
+   * maximize brings the navigator component to full visibility
+   * and renders subcomponents.
+   */
+  public maximize(callback?: () => any): void {
+    this.minimized = false;
+    this.element.style.transform = "translate(-50%,-100%)";
+
+    if (callback) {
+      callback();
+    }
   }
 
   /**
@@ -119,10 +170,9 @@ export class CommentNavigator {
     this.element.style.transform = `translate(-50%,-${this.element.style.padding})`;
 
     // Destroy the subcomponents only after the element has minimized
+    // TODO: The duration isn currently defined independently of the actual
+    // duration used in the CSS transition on the "translate" property
     setTimeout(() => {
-      this.subcomponents.forEach((sc) => {
-        sc.destroy();
-      });
       if (callback) {
         callback();
       }
@@ -139,7 +189,7 @@ export class CommentNavigator {
     if (this.minimized == false) {
       this.minimize(duration);
     } else {
-      this.renderSubcomponents();
+      this.maximize();
     }
   }
 
