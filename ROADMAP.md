@@ -2,7 +2,13 @@
 
 ## Doing now
 
-- Dogfood the user script in staging
+- Dogfood the user script in staging and make usability adjustments
+
+  - Minimize the navigator when the page is first loaded.
+  - Move the bottom corners of the navigator offscreen (or make them square)
+  - Allow minimization/maximization by clicking any part of the top edge of the component, which can "light up" to suggest it's manipulable, not the small minimize button (to make minimization faster and easier)
+  - Minimize the navigator on an escape key press
+  - Preserve filter state on minimize, since users may be minimizing a lot given the size of the navigator.
 
 ## Next up in the MVP (by priority)
 

@@ -68,10 +68,19 @@ const templ = `
     border: 1px solid black;
     padding: 2px;
   }
+  div#conversations {
+    position: absolute;
+    /* Google Docs pages have a high z-index, so we add one
+    here too to ensure the navigator remains visible. */
+    z-index: 1000;
+  }
   </style>
   </head>
   <body>
+    <!--used here to artificially isolate thread elements-->
+    <div id="conversations">
     ${threads}
+    </div>
     <script>
     ${bundle}
     </script>

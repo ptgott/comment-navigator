@@ -54,6 +54,10 @@ export class CommentNavigator {
     this.element.style.fontSize = "14px";
     this.element.style.top = "100%";
 
+    // Make sure the element is visible above the z-index
+    // used for content within Google Docs.
+    this.element.style.zIndex = "10000";
+
     this.minButton = document.createElement("span");
     this.minButton.textContent = "—";
     this.minButton.style.cursor = "pointer";
