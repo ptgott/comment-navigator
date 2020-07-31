@@ -53,11 +53,12 @@ export class CommentNavigator {
     this.element.style.left = "50%";
     this.element.style.padding = "20px";
     this.element.style.border = "solid rgb(50,50,50) 3px";
-    this.element.style.borderRadius = "8px";
+    this.element.style.borderRadius = "8px 8px 0px 0px";
     this.element.style.backgroundColor = "white";
     this.element.style.fontFamily = "sans-serif";
     this.element.style.fontSize = "14px";
     this.element.style.top = "100%";
+    this.element.style.boxShadow = "rgba(0, 0, 0, 0.75) 3px 0px 10px -5px";
 
     // Make sure the element is visible above the z-index
     // used for content within Google Docs.

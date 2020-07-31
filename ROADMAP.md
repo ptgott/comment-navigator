@@ -4,7 +4,6 @@
 
 - Dogfood the user script in staging and make usability adjustments
 
-  - Move the bottom corners of the navigator offscreen (or make them square)
   - Allow minimization/maximization by clicking any part of the top edge of the component, which can "light up" to suggest it's manipulable, not the small minimize button (to make minimization faster and easier). Use the cursor to indicate that you can minimize/maximize the navigator.
   - Get to full test coverage again
 
