@@ -34,6 +34,21 @@ describe("ThreadCollection", () => {
     expect(coll.elements.length).toEqual(elCount);
   });
 
+  test("correctly extracts the element of an assigned thread", () => {
+    const expectedText = "This is a comment.";
+    const expectedAuth = "Example Author";
+    document.body.innerHTML = MockCommentThread({
+      author: expectedAuth,
+      text: expectedText,
+      isAssigned: true,
+      replies: [],
+    });
+    const col = ParseForThreads(document.body);
+    expect(col.finalCommentAuthorNames()).toEqual(
+      expect.arrayContaining([expectedAuth])
+    );
+  });
+
   test("returns names of authors for the final comments within comment threads", () => {
     document.body.innerHTML = [
       MockCommentThread({

@@ -6,9 +6,6 @@
  * hold within the doc (e.g, a thread gets selected).
  */
 
-// TODO: CommentThreadOptison and SuggestionThreadOptions are
-// the same. Is there any reason to name them differently?
-
 /** CommentThreadOptions lets you design a comment thread, including
  * its first comment and any child comments.
  */
@@ -17,6 +14,7 @@ export interface CommentThreadOptions {
   text: string; // First comment text
   replies: Array<ChildCommentOptions>;
   isActive?: boolean;
+  isAssigned?: boolean; // We don't care right now who it's assigned to
 }
 
 /** SuggestionThreadOptions lets you design a suggestion thread,
@@ -36,6 +34,65 @@ export interface SuggestionThreadOptions {
 export interface ChildCommentOptions {
   author: string;
   text: string;
+}
+
+/**
+ * Creates the header element found within assigned comment threads. Some
+ * notes about assigned threads in general:
+ * 
+ * - You can only assign within a comment thread (not a suggestion thread).
+ * - You can only create new assignments from the root comment.
+ * - If a discussion is assigned, you can re-assign it within any comment
+ *   within the thread. (But you can't assign a discussion from any comment but
+ *   the root comment.)
+ * - There can only be one assignee.
+ * - In assigned threads, the element with classes 
+ *  `docos-anchoreddocoview-content docos-docoview-replycontainer` has a first child 
+ *   with the class `docos-assigneeview docos-assignee-<other|you>`, rather than 
+ *  `docos-docoview-rootreply`.
+ * - In assigned threads, the first child of the element with class 
+ * `docos-anchoreddocoview-internal` has the class 
+ * `docos-anchoreddocoview-content docos-anchoreddocoview-assigneecontainer`,
+ *  not `docos-anchoreddocoview-content docos-docoview-replycontainer`.
+@param {CommentThreadOptions} options 
+ */
+export function AssigneeHeader(options: CommentThreadOptions): string {
+  return `<div class="docos-assigneeview">
+<table>
+    <tbody>
+    <tr>
+        <td class="docos-assigneeview-avatar-container">
+        <!--Omitting image-->
+        </td>
+        <td class="docos-assigneeview-assigneeinfo">
+        <div class="docos-assigneeview-label">Assigned to</div>
+        <div class="docos-assigneeview-assignee-text">
+            ${options.author}
+        </div>
+        </td>
+        <td class="hide-on-readonly">
+        <div
+            role="button"
+            class="goog-inline-block jfk-button jfk-button-flat docos-mark-done-button docos-mark-done-button-black"
+            tabindex="0"
+            data-tooltip="Mark as done and hide discussion"
+            aria-label='Mark as done and hide discussion."'
+            style="user-select: none;"
+        >
+            <div
+            class="docs-icon goog-inline-block docs-material docos-icon-checkmark docos-icon-accept-checkmark-size docos-icon-checkmark-black"
+            >
+            <div
+                class="docs-icon-img-container docs-icon-img docs-icon-check-24"
+                aria-hidden="true"
+            ></div>
+            </div>
+        </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</div>`;
 }
 
 /**
@@ -217,10 +274,18 @@ export function MockCommentThread(options: CommentThreadOptions): string {
 
   return `
 <div class="docos-docoview-tesla-conflict docos-docoview-resolve-button-visible docos-anchoreddocoview ${activeClass}" role="listitem"
-    aria-label="Comments dialog. Open comment. Author ${options.author}. ${options.replies.length} replies." tabindex="0"
+    aria-label="Comments dialog. Open comment. Author ${options.author}. ${
+    options.replies.length
+  } replies." tabindex="0"
     style="left: 25px; top: 105px;">
     <div class="docos-anchoreddocoview-internal">
+        ${
+          options.isAssigned
+            ? '<div class="docos-anchoreddocoview-content docos-anchoreddocoview-assigneecontainer"></div>'
+            : ""
+        }
         <div class="docos-anchoreddocoview-content docos-docoview-replycontainer">
+            ${options.isAssigned ? AssigneeHeader(options) : ""}
             <div class="docos-docoview-rootreply">
                 <div class="docos-anchoredreplyview docos-replyview-first docos-replyview-comment">
                     <div class="docos-anchoredreplyview-header">
@@ -230,8 +295,12 @@ export function MockCommentThread(options: CommentThreadOptions): string {
                         </div>
                         <div class="docos-anchoredreplyview-authortimestamp">
                             <div class="docos-anchoredreplyview-author docos-author"
-                                data-hovercard-id="1111111111111111111111" data-name="${options.author}"
-                                data-hovercard-owner-id="91">${options.author}</div>
+                                data-hovercard-id="1111111111111111111111" data-name="${
+                                  options.author
+                                }"
+                                data-hovercard-owner-id="91">${
+                                  options.author
+                                }</div>
                             <div class="docos-anchoredreplyview-timestamp docos-replyview-timestamp">7:50 PM May 1</div>
                         </div>
                         <div class="docos-anchoredreplyview-buttonholder hide-on-readonly">

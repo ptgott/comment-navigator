@@ -4,9 +4,14 @@
 
 /**
  * The class used by all suggestion and comment thread elements.
- * All children of this element are replies.
+ * All children of this element are replies. Note that
+ * in assigned threads, the first child element after
+ * <div class="docos-anchoreddocoview-internal">
+ * has the classes "docos-anchoreddocoview-content" and
+ * "docos-anchoreddocoview-assigneecontainer", so we just use
+ * the second classname here.
  */
-export const thread: string = ".docos-anchoreddocoview-content";
+export const thread: string = ".docos-docoview-replycontainer";
 
 /**
  * The class of the element whose textContent indicates the author
