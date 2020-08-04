@@ -4,17 +4,8 @@
 
 - Dogfood the user script in staging and make usability adjustments
 
-<<<<<<< HEAD
   - Allow minimization/maximization by clicking any part of the top edge of the component, which can "light up" to suggest it's manipulable, not the small minimize button (to make minimization faster and easier). Use the cursor to indicate that you can minimize/maximize the navigator.
   - Get to full test coverage again
-=======
-### Current subtask
-
-### Next subtasks
-
-- Allow minimization/maximization by clicking any part of the top edge of the component, which can "light up" to suggest it's manipulable, not the small minimize button (to make minimization faster and easier). Use the cursor to indicate that you can minimize/maximize the navigator.
-- Get to full test coverage again
->>>>>>> dc86f1a... Add assignee header to fixtures
 
 ## Next up in the MVP (by priority)
 
