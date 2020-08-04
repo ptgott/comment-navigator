@@ -14,6 +14,15 @@
 export const thread: string = ".docos-docoview-replycontainer";
 
 /**
+ * The scrollable element containing discussion threads in Google Docs.
+ * Note that the document body is not actually scrollable--its height
+ * is set to window.innerHeight and its overflow to "hidden." However,
+ * discussionScrollContext has a visible overflow. Google Docs sets
+ * its height to slightly less than window.innerHeight.
+ */
+export const discussionScrollContext: string = ".kix-appview-editor";
+
+/**
  * The class of the element whose textContent indicates the author
  * of a comment.
  */

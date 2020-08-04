@@ -1,6 +1,8 @@
 import * as selectors from "../lib/constants/selectors";
 
-// Global variables/functions used for debugging and running e2e tests
+// Global variables/functions used for debugging and running e2e tests.
+// Indented to be run with a <script> tag from the HTML returned by the
+// e2e test server.
 
 // Add a global makeActive function so we can manipulate
 // which thread containers are active
@@ -30,3 +32,11 @@ import * as selectors from "../lib/constants/selectors";
     window.makeActive(ts);
   });
 });
+
+// Google Docs sets the height of the document body to window.innerHeight
+// and the element enclosing discussion threads to a bit less than
+// innerHeight. We reproduce this here to test scrolling more accurately.
+document.body.style.height = window.innerHeight + "px";
+(document.querySelector(
+  selectors.discussionScrollContext
+) as HTMLElement).style.height = `${window.innerHeight - 100}px`;

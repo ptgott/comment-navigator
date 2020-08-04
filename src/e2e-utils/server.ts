@@ -14,6 +14,7 @@ import { Server } from "http";
 import path from "path";
 import { safeLoad } from "js-yaml";
 import { activeThread, conversationWrapper } from "../lib/constants/selectors";
+import * as selectors from "../lib/constants/selectors";
 
 export interface commentConfig {
   author: string;
@@ -53,15 +54,23 @@ const bundlePath = env.BUNDLE_PATH;
 // Path to global variables/functions used for debugging
 // and running e2e tests
 const e2eGlobalsPath = env.E2E_GLOBALS_PATH;
-
 const bundle = fs.readFileSync(bundlePath, "utf8");
 const e2eGlobals = fs.readFileSync(e2eGlobalsPath, "utf8");
+const discussionContextClass = selectors.discussionScrollContext.replace(
+  ".",
+  ""
+);
 
 const templ = `
   <!DOCTYPE html>
   <head>
   <style type="text/css">
+  body {
+    /* As in Google Docs */
+    overflow: hidden
+  }
   ${activeThread} {
+    /* For debugging */
     border: 1px solid red !important;
   }
   ${conversationWrapper} {
@@ -74,11 +83,19 @@ const templ = `
     here too to ensure the navigator remains visible. */
     z-index: 1000;
   }
+  div.${discussionContextClass} {
+    /* As in Google Docs */
+    overflow: auto;
+  }
   </style>
   </head>
   <body>
     <!--used here to artificially isolate thread elements-->
-    <div id="conversations">
+    <!--
+      This is the div class used in Google Docs to enclose
+      discussion thread elements.
+    -->
+    <div class="${discussionContextClass}">
     ${threads}
     </div>
     <script>
