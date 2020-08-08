@@ -69,10 +69,11 @@ export class ThreadCount extends NavigatorControl {
   public render(): HTMLElement {
     this.wrapper = document.createElement("span");
     this.wrapper.id = "commentThreadCount";
-    this.wrapper.style.fontSize = "2em";
-    this.wrapper.style.display = "block";
-    this.wrapper.style.verticalAlign = "top";
-    this.wrapper.style.marginBottom = "10px";
+    this.wrapper.style.fontSize = "1.2em";
+    this.wrapper.style.fontWeight = "900";
+    this.wrapper.style.display = "inline-block";
+    this.wrapper.style.verticalAlign = "middle";
+    this.wrapper.style.marginRight = "10px";
     return this.wrapper;
   }
 
@@ -255,7 +256,9 @@ export class AuthorSelectBox extends NavigatorControl {
     // the select box itself
     this.input = document.createElement("select");
     this.input.setAttribute("multiple", "true");
-    this.input.setAttribute("size", "5");
+    // A size of 3 allows for the most efficient use of space
+    // within the main navigator
+    this.input.setAttribute("size", "3");
     this.input.name = "authorSelectBox";
     this.input.style.width = `${outerWidth - 10}px`;
 
@@ -374,6 +377,7 @@ export class RegexpSearchBox extends NavigatorControl {
     this.textInput = document.createElement("input");
     this.textInput.setAttribute("type", "text");
     this.textInput.setAttribute("name", "regexpSearch");
+    this.textInput.setAttribute("autocomplete", "off");
 
     const label = document.createElement("label");
     label.innerText = "Search by JS regular expression";

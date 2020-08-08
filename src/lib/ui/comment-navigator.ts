@@ -48,10 +48,11 @@ export class CommentNavigator {
     this.element.style.transitionProperty = "transform";
     this.element.style.transitionDuration = "1s";
     // Width at which elements wrap appropriately
-    this.element.style.width = "520px";
+    this.element.style.width = "535px";
     this.element.style.position = "fixed";
     this.element.style.left = "50%";
-    this.element.style.padding = "20px";
+    // To make room for absolutely positioned elements at the top
+    this.element.style.padding = "30px 15px 15px 15px";
     this.element.style.border = "solid rgb(50,50,50) 3px";
     this.element.style.borderRadius = "8px 8px 0px 0px";
     this.element.style.backgroundColor = "white";
@@ -69,7 +70,7 @@ export class CommentNavigator {
     this.minButton.style.cursor = "pointer";
     this.minButton.style.position = "absolute";
     this.minButton.style.top = "-10px";
-    this.minButton.style.left = "510px";
+    this.minButton.style.left = "532px";
     this.minButton.style.fontSize = "30px";
     this.minButton.style.fontWeight = "bold";
 
@@ -111,8 +112,18 @@ export class CommentNavigator {
    * @param {HTMLElement} context - where to append the component
    */
   public render(context: HTMLElement): void {
+    const minimizeHint = document.createElement("span");
+    minimizeHint.textContent = "Esc to minimize";
+    minimizeHint.style.fontStyle = "italic";
+    minimizeHint.style.fontSize = ".8em";
+    minimizeHint.style.position = "absolute";
+    minimizeHint.style.top = "2px";
+    minimizeHint.style.left = "7px";
+    minimizeHint.style.width = "100px";
+
     this.context = context;
     context.appendChild(this.element);
+    this.element.appendChild(minimizeHint);
     this.element.appendChild(this.minButton);
 
     this.renderSubcomponents();
@@ -167,7 +178,7 @@ export class CommentNavigator {
    */
   public minimize(duration: number, callback?: () => any): void {
     this.minimized = true;
-    this.element.style.transform = `translate(-50%,-${this.element.style.padding})`;
+    this.element.style.transform = `translate(-50%,-${this.element.style.paddingTop})`;
 
     // Destroy the subcomponents only after the element has minimized
     // TODO: The duration isn currently defined independently of the actual

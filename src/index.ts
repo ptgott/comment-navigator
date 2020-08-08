@@ -19,10 +19,10 @@ import {
 
   const n = new CommentNavigator(
     [
-      new ThreadCount(),
       new AuthorSelectBox(),
       new ThreadTypeCheckBoxes(),
       new RegexpSearchBox(),
+      new ThreadCount(),
       FirstButton(),
       PrevButton(),
       NextButton(),

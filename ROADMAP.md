@@ -8,12 +8,6 @@
 
 - If you delete or resolve a comment or suggestion, the navigation buttons start from the beginning again—it’d be smoother to start from the next comment. Fix this!
 
-- Make the comment navigator lower and wider!
-
-- Add text to the navigator that you can press escape to minimize
-
-- Remove auto suggestions from the regex search
-
 - Get to full test coverage again (and passing tests!)
 
 - Add a license

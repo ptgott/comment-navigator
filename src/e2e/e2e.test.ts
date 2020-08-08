@@ -16,11 +16,15 @@ import {
 // We make sure the content loads fully before running tests,
 // so you shouldn't need to adjust the timeout that much.
 
-// 20 is the padding of the comment navigator
-// TODO: Connect this value to the actual padding of the navigator
-const navigatorPadding = 20;
+// Expected height in px for the minimized navigator. The actual height can be
+// a bit lower than this--make this somewhat roomy to avoid flaky tests.
+const expectedMinHeight = 35;
+
 const navigatorSelector = "div#googleDocsCommentNavigator";
-const minimizeSelector = `${navigatorSelector} span:nth-of-type(1)`;
+
+// The first span is instructional text. The second is the minimization
+// component.
+const minimizeSelector = `${navigatorSelector} span:nth-of-type(2)`;
 const fixture = safeLoad(
   fs.readFileSync(path.join("src", "e2e", "fixture.yaml"), "utf8")
 );
@@ -100,7 +104,7 @@ describe("When a user loads the navigator UI", () => {
   test("the navigator component should be minimized", async () => {
     const navHeight = await getNavigatorHeight();
 
-    expect(navHeight).toBeLessThanOrEqual(navigatorPadding);
+    expect(navHeight).toBeLessThanOrEqual(expectedMinHeight);
   });
 
   describe("After maximizing the navigator", () => {
@@ -118,7 +122,7 @@ describe("When a user loads the navigator UI", () => {
       await page.keyboard.press("Escape");
       await sleep(1000);
       const navHeight = await getNavigatorHeight();
-      expect(navHeight).toBeLessThanOrEqual(navigatorPadding);
+      expect(navHeight).toBeLessThanOrEqual(expectedMinHeight);
     });
 
     test("there should be a count of all threads", async () => {
