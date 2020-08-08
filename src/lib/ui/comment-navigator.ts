@@ -23,6 +23,16 @@ export class CommentNavigator {
   private refreshInterval: number;
 
   /**
+   * previouslySelectedThreadIndex is the zero-based position of the previously
+   * selected comment thread within all threads in the document, ordered from
+   * first to last displayed.
+   * We need to store this so users can deselect all discussion threads in
+   * the doc but continue navigating where it would be reasonable, without
+   * having to go back to the beginning of the doc.
+   */
+  previouslySelectedThreadIndex: number;
+
+  /**
    * For rendering and refreshing, CommentNavigator
    * just calls render() or refresh() for each
    * subcomponent. CommentNavigator doesn't know
@@ -76,14 +86,12 @@ export class CommentNavigator {
 
     this.minButton.addEventListener(
       "click",
-      this.toggleMinimize.bind(this, 1000)
+      this.toggleMinimize.bind(this, refreshInterval)
     );
 
     document.addEventListener("keydown", (ev) => {
-      // Escape key. See:
-      // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
       if (ev.key === "Escape") {
-        this.minimize(1000);
+        this.minimize(refreshInterval);
       }
     });
 
@@ -97,9 +105,9 @@ export class CommentNavigator {
    * maximize(), for example.
    */
   public renderSubcomponents(): void {
-    // Nothing more to render
-    if (this.subcomponents == null) {
-      return;
+    if (!this.subcomponents) {
+      // This error shouldn't ever reach users
+      throw new Error("The Navigator has null or undefined subcomponents.");
     }
 
     this.subcomponents.forEach((sc) => {
@@ -146,26 +154,36 @@ export class CommentNavigator {
    * filters them with filters from the component, and uses the filters
    * to refresh the Comment Navigator.
    *
+   * You should call render() first, otherwise readAndRefresh will throw
+   * an exception.
+   *
    * Intended to be used with window.setInterval.
    */
-  private readAndRefresh(): void {
+  public readAndRefresh(): void {
     const threadsBefore = ParseForThreads(this.context);
+    // Take this from threadsBefore since a thread can be filtered out
+    // but still selected.
+    const st = threadsBefore.getSelectedThreadIndex();
+
+    if (st >= 0) {
+      this.previouslySelectedThreadIndex = st;
+    }
+
     const fc = this.readFilters();
     const threadsAfter = fc.use(threadsBefore);
-    this.refresh(new FiltrationRecord(threadsBefore, threadsAfter, fc));
+    this.refresh(
+      new FiltrationRecord(threadsBefore, threadsAfter, fc),
+      this.previouslySelectedThreadIndex
+    );
   }
 
   /**
    * maximize brings the navigator component to full visibility
    * and renders subcomponents.
    */
-  public maximize(callback?: () => any): void {
+  public maximize(): void {
     this.minimized = false;
     this.element.style.transform = "translate(-50%,-100%)";
-
-    if (callback) {
-      callback();
-    }
   }
 
   /**
@@ -208,10 +226,13 @@ export class CommentNavigator {
    * refresh updates the data within element without re-rendering.
    * @param {FiltrationRecord} fr You'll need to apply
    * filters before calling refresh.
+   * @param {CommentThread} prevSelectedIndex The position of the previously
+   * selected comment thread within all threads in the doc, ordered by
+   * appearance on the page.
    */
-  public refresh(fr: FiltrationRecord): void {
+  public refresh(fr: FiltrationRecord, prevSelectedIndex?: number): void {
     this.subcomponents.forEach((sc) => {
-      sc.refresh(fr);
+      sc.refresh(fr, prevSelectedIndex);
     });
   }
 

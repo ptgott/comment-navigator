@@ -29,6 +29,45 @@ const fixture = safeLoad(
   fs.readFileSync(path.join("src", "e2e", "fixture.yaml"), "utf8")
 );
 
+/**
+ * activateThread makes a thread active, i.e., simulates selecting or
+ * clicking the discussion thread in Google Docs.
+ * @param threadIndex the index of the discussion thread within
+ * an array of all discussion threads, ordered so that the highest
+ * in the document comes first.
+ */
+async function activateThread(threadIndex: number) {
+  // Note that this function only triggers the active/inactive state.
+  // The functionality for implementing the state is left to the
+  // e2e test server in order to simulate Google Docs.
+  await page.click(
+    // Remember that nth-of-type starts at 1, not 0!
+    `${conversationWrapper}:nth-of-type(${threadIndex + 1})`
+  );
+  // Wait a bit to let the navigator refresh
+  await sleep(200);
+}
+
+/**
+ * deactivateThreads renders all discussions on the page inactive.
+ */
+async function deactivateThreads() {
+  // Note that in a real Google Doc, removing the activeClass
+  // doesn't actually deactivate a thread. But since the class's
+  // presence is sufficient to identify a thread as active, we can
+  // keep this here.
+  await page.evaluate((activationSelector) => {
+    const activeClass = activationSelector.replace(".", "");
+    document.querySelectorAll(activationSelector).forEach((el) => {
+      el.classList.remove(activeClass);
+    });
+  }, activeThread);
+
+  // Without waiting at all, the code following deactivateThreads()
+  // sometimes detects active threads.
+  await sleep(50);
+}
+
 async function threadCounterValue(): Promise<string> {
   return await page.evaluate(async (ns) => {
     return document.querySelector(`${ns} #commentThreadCount`).textContent;
@@ -48,6 +87,38 @@ async function maximizeTheNavigator(): Promise<void> {
   // TODO: Find a less brittle way of waiting until the nav component
   // is ready.
   await sleep(1000);
+}
+
+/**
+ * getActiveThreadIndex gets the index of the active
+ * discussion thread within an array of all discussion
+ * threads ordered from highest in the doc to lowest
+ * in the doc. It returns -1 if no thread is active.
+ */
+async function getActiveThreadIndex(): Promise<number> {
+  const indx = await page.evaluate(
+    (threadSelector, activeSelector) => {
+      // Check the index of the active thread container within
+      // the array of all thread containers.
+      const activeThreadContainers = document.body.querySelectorAll(
+        activeSelector
+      );
+      if (activeThreadContainers.length !== 1) {
+        throw new Error(
+          `Got ${activeThreadContainers.length} active thread containers!`
+        );
+      }
+      const allThreadContainers = [
+        ...document.querySelectorAll(threadSelector),
+      ].map((ts) => {
+        return ts.parentElement.parentElement;
+      });
+      return allThreadContainers.indexOf(activeThreadContainers[0]);
+    },
+    threadSelector,
+    activeThread
+  );
+  return indx;
 }
 
 async function getNavigatorHeight(): Promise<number> {
@@ -229,12 +300,13 @@ describe("The navigation buttons", () => {
     }
   });
 
+  interface testCase {
+    startingIndex: number; // Which thread to begin from
+    expectedIndex: number; // Which thread we should end up with
+    buttonSelector: string; // For determining where to click
+  }
+
   test("Clicking a navigation button should activate the expected thread", async () => {
-    interface testCase {
-      startingIndex: number; // Which thread to begin from
-      expectedIndex: number; // Which thread we should end up with
-      buttonSelector: string; // For determining where to click
-    }
     const testCases: Array<testCase> = [
       // Go to first
       {
@@ -267,43 +339,59 @@ describe("The navigation buttons", () => {
       await sleep(200); // Let things settle a bit
       try {
         // Make the starting thread active by clicking on it
-        await page.click(
-          // Remember that nth-of-type starts at 1, not 0!
-          `${conversationWrapper}:nth-of-type(${tc.startingIndex + 1})`
-        );
-        // Wait a bit to let the navigator refresh
-        await sleep(200);
+        await activateThread(tc.startingIndex);
+
         // Click the button
         await page.click(tc.buttonSelector);
         // wait a bit
         await sleep(200);
 
         // check the results
-        const actualIndex = await page.evaluate(
-          (threadSelector, activeSelector) => {
-            // Check the index of the active thread container within
-            // the array of all thread containers.
-            const activeThreadContainers = document.body.querySelectorAll(
-              activeSelector
-            );
-            if (activeThreadContainers.length !== 1) {
-              throw new Error(
-                `Got ${activeThreadContainers.length} active thread containers!`
-              );
-            }
-            const allThreadContainers = [
-              ...document.querySelectorAll(threadSelector),
-            ].map((ts) => {
-              return ts.parentElement.parentElement;
-            });
-            return allThreadContainers.indexOf(activeThreadContainers[0]);
-          },
-          threadSelector,
-          activeThread
-        );
+        const actualIndex = await getActiveThreadIndex();
         expect(actualIndex).toEqual(tc.expectedIndex);
       } catch (err) {
         fail(err);
+      }
+    }
+  });
+
+  test("if threads are made inactive, the thread selection sequence persists", async () => {
+    const testCases: Array<testCase> = [
+      // Go to previous
+      {
+        startingIndex: 3,
+        expectedIndex: 2,
+        buttonSelector: `${navigatorSelector} button[data-direction="Previous"]`,
+      },
+      // Go to next
+      {
+        startingIndex: 2,
+        expectedIndex: 3,
+        buttonSelector: `${navigatorSelector} button[data-direction="Next"]`,
+      },
+    ];
+    // Can't use forEach here because the code is asynchronous and we
+    // need to be careful about the `page` object state.
+    for (let tc of testCases) {
+      await sleep(200); // Let things settle a bit
+      try {
+        // Make the starting thread active by clicking on it
+        await activateThread(tc.startingIndex);
+
+        await deactivateThreads();
+
+        // Click the button
+        await page.click(tc.buttonSelector);
+        // wait a bit
+        await sleep(200);
+
+        // check the results
+        const actualIndex = await getActiveThreadIndex();
+        expect(actualIndex).toEqual(tc.expectedIndex);
+      } catch (err) {
+        fail(
+          `Couldn't navigate correctly from: \n${tc.buttonSelector}\n${err}`
+        );
       }
     }
   });

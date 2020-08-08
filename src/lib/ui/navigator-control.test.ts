@@ -177,6 +177,61 @@ describe("NextButton", () => {
       .textContent;
     expect(actualText.trim()).toEqual(expectedText);
   });
+
+  test("points to the correct target thread with a previous index", () => {
+    interface testCase {
+      prevIndex: number;
+      expectedText: string;
+    }
+
+    const cases: Array<testCase> = [
+      { prevIndex: 0, expectedText: "This is a second thread" },
+      { prevIndex: 1, expectedText: "This is a third thread" },
+      { prevIndex: null, expectedText: "This is a thread" },
+      { prevIndex: undefined, expectedText: "This is a thread" },
+      { prevIndex: 3, expectedText: "This is also text" },
+    ];
+
+    // No active threads
+    document.body.innerHTML = [
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a second thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockCommentThread({
+        author: "Blah Blah",
+        text: "This is a third thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockSuggestionThread({
+        author: "Example athor",
+        text: "This is also text",
+        replies: [],
+        isActive: false,
+      }),
+    ].join("\n");
+
+    cases.forEach((c) => {
+      const tc = ParseForThreads(document.body);
+      const nb = NextButton();
+      const fc = new FilterCollection([], "AND");
+      const fr = new FiltrationRecord(tc, tc, fc);
+      nb.refresh(fr, c.prevIndex);
+      const actualText = nb
+        .target()
+        .element.querySelector(selectors.commentBody).textContent;
+      expect(actualText.trim()).toEqual(c.expectedText);
+    });
+  });
 });
 
 describe("PrevButton", () => {
@@ -210,6 +265,62 @@ describe("PrevButton", () => {
     const actualText = pb.target().element.querySelector(selectors.commentBody)
       .textContent;
     expect(actualText.trim()).toEqual(expectedText);
+  });
+
+  test("points to the correct target thread with a previous index", () => {
+    interface testCase {
+      prevIndex: number;
+      expectedText: string;
+    }
+
+    const cases: Array<testCase> = [
+      { prevIndex: 0, expectedText: "This is a thread" },
+      { prevIndex: 1, expectedText: "This is a thread" },
+      { prevIndex: null, expectedText: "This is a thread" },
+      { prevIndex: undefined, expectedText: "This is a thread" },
+      { prevIndex: 3, expectedText: "This is a third thread" },
+      { prevIndex: 2, expectedText: "This is a second thread" },
+    ];
+
+    // No active threads
+    document.body.innerHTML = [
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockCommentThread({
+        author: "Foo Bar",
+        text: "This is a second thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockCommentThread({
+        author: "Blah Blah",
+        text: "This is a third thread",
+        replies: [],
+        isActive: false,
+      }),
+      MockSuggestionThread({
+        author: "Example athor",
+        text: "This is also text",
+        replies: [],
+        isActive: false,
+      }),
+    ].join("\n");
+
+    cases.forEach((c) => {
+      const tc = ParseForThreads(document.body);
+      const nb = PrevButton();
+      const fc = new FilterCollection([], "AND");
+      const fr = new FiltrationRecord(tc, tc, fc);
+      nb.refresh(fr, c.prevIndex);
+      const actualText = nb
+        .target()
+        .element.querySelector(selectors.commentBody).textContent;
+      expect(actualText.trim()).toEqual(c.expectedText);
+    });
   });
 });
 

@@ -1,5 +1,6 @@
 import * as selectors from "../constants/selectors";
 import { CommentThread } from "./comment-thread";
+import { CommentThreadOptions } from "../test-utils/mock-html";
 
 /**
  * ParseForThreads is used to extract comment threads
@@ -70,5 +71,25 @@ export class ThreadCollection {
       return el.finalComment().querySelector(selectors.author).textContent;
     });
     return [...new Set(allAuths)]; // Get unique names but still return an array
+  }
+
+  /**
+   * getSelectedThread returns the thread that is currently active.
+   */
+  getSelectedThread(): CommentThread {
+    return this.elements.find((el) => {
+      return el.element.parentElement.parentElement.matches(
+        selectors.activeThread
+      );
+    });
+  }
+
+  /**
+   * getSelectedThreadIndex returns the index of the selected thread
+   * within all threads in the ThreadCollection--ordering the threads
+   * is left to the caller.
+   */
+  getSelectedThreadIndex(): number {
+    return this.elements.indexOf(this.getSelectedThread());
   }
 }

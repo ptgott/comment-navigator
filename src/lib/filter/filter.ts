@@ -208,28 +208,3 @@ export class RegexpBodyFilter extends Filter {
     });
   }
 }
-
-/**
- * SelectedThreadFilter returns the thread that is currently active.
- * It's only really useful in the contex of another ThreadCollection.
- * We're inheriting from Filter rather than making this a method of
- * ThreadCollection because it fits the Filter interface well.
- * If this approach starts to get messy, though, we should make
- * this a method of ThreadCollection before it's too late.
- */
-export class SelectedThreadFilter extends Filter {
-  constructor() {
-    super(null);
-  }
-
-  matches(thread: CommentThread): boolean {
-    // The active thread class is assigned to the element two
-    // parent levels up from the CommentThread's element.
-    return thread.element.parentElement.parentElement.classList.contains(
-      // The classList won't contain the class as a CSS selector,
-      // but we still want to keep activeThread as a selector for
-      // consistency.
-      selectors.activeThread.replace(".", "")
-    );
-  }
-}

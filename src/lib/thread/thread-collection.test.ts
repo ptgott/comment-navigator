@@ -1,5 +1,8 @@
 import { ParseForThreads } from "./thread-collection";
-import { MockCommentThread } from "../test-utils/mock-html";
+import {
+  MockCommentThread,
+  MockSuggestionThread,
+} from "../test-utils/mock-html";
 // This a test file for use with Jest
 
 beforeEach(() => {
@@ -81,5 +84,65 @@ describe("ThreadCollection", () => {
     const actual: Array<string> = coll.finalCommentAuthorNames();
     expect(actual).toEqual(expect.arrayContaining(expected));
     expect(actual.length).toEqual(expected.length);
+  });
+
+  describe("getSelectedThread", () => {
+    test("shows active suggestion threads", () => {
+      const desiredAuthor = "IM Active";
+      document.body.innerHTML = [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockSuggestionThread({
+          author: desiredAuthor,
+          text: "This is a thread",
+          replies: [],
+          isActive: true,
+        }),
+        MockSuggestionThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+      ].join("\n");
+
+      const col = ParseForThreads(document.getElementsByTagName("body")[0]);
+      expect(col.getSelectedThread().element.textContent).toContain(
+        desiredAuthor
+      );
+    });
+
+    test("shows active comment threads", () => {
+      const desiredAuthor = "IM Active";
+      document.body.innerHTML = [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: desiredAuthor,
+          text: "This is a thread",
+          replies: [],
+          isActive: true,
+        }),
+        MockSuggestionThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+      ].join("\n");
+
+      const col = ParseForThreads(document.getElementsByTagName("body")[0]);
+      expect(col.getSelectedThread().element.textContent).toContain(
+        desiredAuthor
+      );
+    });
   });
 });

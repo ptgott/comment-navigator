@@ -4,15 +4,9 @@
 
 ## Next up in the MVP (by priority)
 
-- If you select a comment, the navigation buttons don’t treat it as active and instead start navigating from the first comment. Fix this!
+- Fix: If there are double-digit comments, the navigation buttons wrap
 
-- If you delete or resolve a comment or suggestion, the navigation buttons start from the beginning again—it’d be smoother to start from the next comment. Fix this!
-
-- Get to full test coverage again (and passing tests!)
-
-- Fix: If there are doublel-digit comments, the navigation buttons wrap
-
-- Add a license
+- Add a license (and make sure it shows up in the build)
 
 - Work out a deployment process.
 
@@ -24,10 +18,7 @@
 
 ## Features for after the MVP
 
-<<<<<<< HEAD
-
-- # When you navigate to a discussion thread in Google Docs, sometimes the default focus behavior will send the thread slightly offscreen. Add some way to direct the user to offscreen threads. Note that one attempt to solve this problem used `scrollBy` to move offscreen threads into view. If this happens during the Google Docs discussion selection animiation, the effect is super jarring. The issue isn't severe enough to warrant pervasive scrolljacking.
-  > > > > > > > 69f25a1... Update the ROADMAP
+- When you navigate to a discussion thread in Google Docs, sometimes the default focus behavior will send the thread slightly offscreen. Add some way to direct the user to offscreen threads. Note that one attempt to solve this problem used `scrollBy` to move offscreen threads into view. If this happens during the Google Docs discussion selection animation, the effect is super jarring. The issue isn't severe enough to warrant pervasive scrolljacking.
 - Change the minimization flow to reduce the screen real estate of the comment navigator.
   - When initially maximized, show only navigation buttons, plus an option to show filters, and the text indicating how many comments remain
   - When the “show filters” option is shown, show the filter input components

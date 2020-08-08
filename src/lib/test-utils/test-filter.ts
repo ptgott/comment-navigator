@@ -12,5 +12,11 @@ export class TestFilter extends Filter {
     super(criterion);
   }
 
-  // matches() isn't actually implemented yet.
+  /**
+   * matches does the bare minimum to satisfy the Filter interface.
+   * It accepts all CommentThreads.
+   */
+  matches(): boolean {
+    return true;
+  }
 }

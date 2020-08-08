@@ -1,6 +1,5 @@
 import { CommentThread } from "../thread/comment-thread";
 import {
-  SelectedThreadFilter,
   Filter,
   FinalCommentAuthorNameFilter,
   RegexpBodyFilter,
@@ -43,9 +42,15 @@ export abstract class NavigatorControl {
    * refresh updates any stateful data shown/handled within the component.
    * We apply the filters here so child components can access
    * the original ThreadCollection as well.
-   * @param fr FiltrationRecord
+   * @param {FiltrationRecord} fr
+   * @param {CommentThread} prevSelectedIndex The position of the previously
+   * selected comment thread within all threads in the doc, ordered by
+   * appearance on the page.
    */
-  public abstract refresh(fr: FiltrationRecord): void;
+  public abstract refresh(
+    fr: FiltrationRecord,
+    prevSelectedIndex?: number
+  ): void;
 
   /**
    * destroy removes the NavigatorControl from the DOM. It's meant to
@@ -99,7 +104,10 @@ export class ThreadCount extends NavigatorControl {
  *
  */
 export class NavButton extends NavigatorControl {
-  private nextTarget: (tc: ThreadCollection) => CommentThread;
+  private nextTarget: (
+    tc: ThreadCollection,
+    prevSelectedIndex?: number
+  ) => CommentThread;
 
   private text: string; // For display and direction data attribute
 
@@ -135,8 +143,8 @@ export class NavButton extends NavigatorControl {
     this.nextTarget = targetFunc;
   }
 
-  public refresh(fr: FiltrationRecord): void {
-    this.targetThread = this.nextTarget(fr.after);
+  public refresh(fr: FiltrationRecord, prevSelectedIndex?: number): void {
+    this.targetThread = this.nextTarget(fr.after, prevSelectedIndex);
   }
 
   public render(): HTMLElement {
@@ -172,13 +180,28 @@ export class NavButton extends NavigatorControl {
 export function NextButton(): NavButton {
   return new NavButton(
     "Next",
-    (tc: ThreadCollection): CommentThread => {
-      const selected = new SelectedThreadFilter().use(tc).elements[0];
+    (tc: ThreadCollection, prevSelectedIndex?: number): CommentThread => {
+      // TODO: Consider moving the logic for dealing with the prevSelectedIndex up one
+      // calling context, into refresh().
+      const selected = tc.getSelectedThread();
       // Ensure that the ThreadCollection's elements are ordered
       // in their original sequence.
       tc.orderByAppearanceInPage();
-      const selectedIndex = tc.elements.indexOf(selected);
+      let selectedIndex = tc.elements.indexOf(selected);
+
+      // If no element is currently selected, return the
+      // index of the one that was previously selected.
+      if (
+        selectedIndex == -1 &&
+        prevSelectedIndex >= 0 &&
+        prevSelectedIndex !== null
+      ) {
+        selectedIndex = prevSelectedIndex;
+      }
+      // Handle cases where the ThreadCollection is empty
       const maxIndex = Math.max(tc.elements.length - 1, 0);
+
+      // Don't try to overshoot the last element
       return tc.elements[Math.min(maxIndex, selectedIndex + 1)];
     }
   );
@@ -190,13 +213,25 @@ export function NextButton(): NavButton {
 export function PrevButton(): NavButton {
   return new NavButton(
     "Previous",
-    (tc: ThreadCollection): CommentThread => {
-      const selected = new SelectedThreadFilter().use(tc).elements[0];
+    (tc: ThreadCollection, prevSelectedIndex?: number): CommentThread => {
+      // TODO: Consider moving the logic for dealing with the prevSelectedIndex up one
+      // calling context, into refresh().
+      const selected = tc.getSelectedThread();
       // Ensure that the ThreadCollection's elements are ordered
       // in their original sequence.
       tc.orderByAppearanceInPage();
-      const i = tc.elements.indexOf(selected);
-      return tc.elements[Math.max(0, i - 1)];
+      let selectedIndex = tc.elements.indexOf(selected);
+
+      // If no element is currently selected, return the
+      // index of the one that was previously selected.
+      if (
+        selectedIndex == -1 &&
+        prevSelectedIndex >= 0 &&
+        prevSelectedIndex !== null
+      ) {
+        selectedIndex = prevSelectedIndex;
+      }
+      return tc.elements[Math.max(0, selectedIndex - 1)];
     }
   );
 }
