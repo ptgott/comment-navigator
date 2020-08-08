@@ -82,7 +82,6 @@ export class CommentNavigator {
       // Escape key. See:
       // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
       if (ev.key === "Escape") {
-        console.log(ev.key);
         this.minimize(1000);
       }
     });

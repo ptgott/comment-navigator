@@ -16,7 +16,6 @@ import {
 // https://www.tampermonkey.net/documentation.php#_run_at
 (() => {
   const waitTimeMs = 100;
-  const navContext = document.querySelector(discussionScrollContext);
 
   const n = new CommentNavigator(
     [
@@ -24,10 +23,10 @@ import {
       new AuthorSelectBox(),
       new ThreadTypeCheckBoxes(),
       new RegexpSearchBox(),
-      FirstButton(navContext),
-      PrevButton(navContext),
-      NextButton(navContext),
-      LastButton(navContext),
+      FirstButton(),
+      PrevButton(),
+      NextButton(),
+      LastButton(),
     ],
     waitTimeMs
   );
