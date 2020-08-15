@@ -10,6 +10,8 @@
 
 - Get to full test coverage again (and passing tests!)
 
+- Fix: If there are doublel-digit comments, the navigation buttons wrap
+
 - Add a license
 
 - Work out a deployment process.
