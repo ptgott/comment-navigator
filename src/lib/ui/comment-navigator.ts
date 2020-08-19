@@ -57,8 +57,10 @@ export class CommentNavigator {
     // rendering states.
     this.element.style.transitionProperty = "transform";
     this.element.style.transitionDuration = "1s";
-    // Width at which elements wrap appropriately
-    this.element.style.width = "535px";
+
+    // Width at which elements wrap appropriately. Tested with
+    // 1200 discussion threads in the document.
+    this.element.style.width = "590px";
     this.element.style.position = "fixed";
     this.element.style.left = "50%";
     // To make room for absolutely positioned elements at the top
@@ -80,7 +82,7 @@ export class CommentNavigator {
     this.minButton.style.cursor = "pointer";
     this.minButton.style.position = "absolute";
     this.minButton.style.top = "-10px";
-    this.minButton.style.left = "532px";
+    this.minButton.style.left = "575px";
     this.minButton.style.fontSize = "30px";
     this.minButton.style.fontWeight = "bold";
 
