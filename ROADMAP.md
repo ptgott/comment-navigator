@@ -4,8 +4,6 @@
 
 ## Next up in the MVP (by priority)
 
-- Add a license (and make sure it shows up in the build)
-
 - Work out a deployment process.
 
   - Set up the GitHub action to sync with a public gist. Consider using this one (https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. GitHub Actions is free for public repos (https://github.com/features/actions). Trigger the action when creating a release.

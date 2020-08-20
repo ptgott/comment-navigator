@@ -11,6 +11,11 @@ const CleanPlugin = require("clean-webpack-plugin").CleanWebpackPlugin;
 const stripIndents = require("common-tags").stripIndents;
 const process = require("process");
 
+// Read the license and convert it to a JS comment
+const licenseComment = fs
+  .readFileSync("./LICENSE", { encoding: "utf8" })
+  .replace(/^/gm, "// ");
+
 // Define the user script headers
 let headerDoc = yaml.safeLoad(
   fs.readFileSync(path.resolve(__dirname, "headers.yaml"), {
@@ -27,8 +32,6 @@ let headerDoc = yaml.safeLoad(
 if (process.env.gistUrl) {
   headerDoc.source = process.env.gistUrl;
 }
-
-console.log("headerDoc", headerDoc);
 
 // Build the user script headers from headerDoc
 // See: https://wiki.greasespot.net/Metadata_Block#Syntax
@@ -59,7 +62,9 @@ module.exports = {
             preamble: stripIndents`
             // ==UserScript==
             ${headers}
-            // ==/UserScript==`,
+            // ==/UserScript==
+            //
+            ${licenseComment}`,
           },
         },
         extractComments: false,
