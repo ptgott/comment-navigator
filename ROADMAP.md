@@ -4,8 +4,11 @@
 
 ## Next up in the MVP (by priority)
 
+- Bug to fix: if you select a discussion, deselect the discussion, and hit “previous,” you get an error. And if you resolve a suggestion, hitting “previous” actually goes to the expected “next” discussion.
+
 - Work out a deployment process.
 
+  - Note that even though it's pretty easy to use `to-staging` to upload this to your own gist, we shouldn't require everyone to do that! Let's add a gist that everyone can copy/paste from without having to pull this repo.
   - Set up the GitHub action to sync with a public gist. Consider using this one (https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. GitHub Actions is free for public repos (https://github.com/features/actions). Trigger the action when creating a release.
   - The user script headers should link to the source code (they currently don’t). Maybe the `@source` header should always point to the GitHub repo, and the `@downloadUrl` header is populated dynamically when deploying to staging?
   - Determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php)
