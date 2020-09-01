@@ -4,8 +4,6 @@
 
 ## Next up in the MVP (by priority)
 
-- Bug to fix: if you select a discussion, deselect the discussion, and hit “previous,” you get an error. And if you resolve a suggestion, hitting “previous” actually goes to the expected “next” discussion.
-
 - Work out a deployment process.
 
   - Note that even though it's pretty easy to use `to-staging` to upload this to your own gist, we shouldn't require everyone to do that! Let's add a gist that everyone can copy/paste from without having to pull this repo.
