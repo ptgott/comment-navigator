@@ -17,3 +17,7 @@ We really wish it could be! Google Docs add-ons don't yet have a good way to dea
 ## Staging
 
 To stage a full version of the user script so you can try out your changes before creating a pull request, run `npm run to-staging`. This will build the user script and push it to a secret gist in your GitHub account. `to-staging` needs to run with the `GITHUB_TOKEN` environment variable set to an API token that is authorized to create gists. If this is successful, it will output the URL of your new gist. Secret gists in GitHub are accessible without authentication to anyone with the URL.
+
+## Releasing
+
+Releasing the user script means uploading to a domain where it will be available to clients as a static JS file. Anyone who has copied the user script to Tampermonkey or similar should be able to access updates through their user script manager. We use GitHub Actions to edit a public gist when we release a new version of the Comment Navigator.

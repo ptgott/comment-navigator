@@ -1,15 +1,19 @@
 # ROADMAP
 
-## Doing now
+## Doing broadly
 
 ## Next up in the MVP (by priority)
 
-- Work out a deployment process.
+- Set up a release process by configuring a GitHub action to sync with a public gist on release. GitHub Actions is free for public repos (https://github.com/features/actions).
 
-  - Note that even though it's pretty easy to use `to-staging` to upload this to your own gist, we shouldn't require everyone to do that! Let's add a gist that everyone can copy/paste from without having to pull this repo.
-  - Set up the GitHub action to sync with a public gist. Consider using this one (https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. GitHub Actions is free for public repos (https://github.com/features/actions). Trigger the action when creating a release.
-  - The user script headers should link to the source code (they currently don’t). Maybe the `@source` header should always point to the GitHub repo, and the `@downloadUrl` header is populated dynamically when deploying to staging?
-  - Determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php)
+  - Figure out how to make a GitHub token safely available to the GitHub Action (i.e., without hardcoding it into the repo).
+  - Figure out how to populate the user script with the current version number.
+  - Set up this GitHub Action (https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. (The Action is actually pretty simple and uses a bash script to run `curl` against the GitHub API! Like all Actions, it runs in a Docker container). **Trigger the Action when a GitHub release is created!**
+  - Determine how to populate the `@source`, `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php)
+  - Create the GitHub repo (maybe create it as a private repo initially)
+  - Push the code and create the first release. You can set up an Action to trigger on release. Creating a release is done through the GitHub UI (https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository), using either an existing git tag or a tag you create.
+
+- Make sure the README is up to snuff
 
 - Fix issues with the navigation:
   When you click the "previous" button, in the `click` event listener, `this.targetThread` is undefined. See when this might happen!
