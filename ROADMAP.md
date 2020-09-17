@@ -11,7 +11,12 @@
   - The user script headers should link to the source code (they currently don’t). Maybe the `@source` header should always point to the GitHub repo, and the `@downloadUrl` header is populated dynamically when deploying to staging?
   - Determine the `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php)
 
-* Release v1
+- Fix issues with the navigation:
+  When you click the "previous" button, in the `click` event listener, `this.targetThread` is undefined. See when this might happen!
+
+  Also, when clicking "next" after answering a discussion, we skip the real next discussion.
+
+- Release v1
 
 ## Features for after the MVP
 
