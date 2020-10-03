@@ -158,12 +158,16 @@ export class NavButton extends NavigatorControl {
     this.wrapper.style.height = "30px";
 
     this.wrapper.addEventListener("click", () => {
-      // The clickable outer wrapper of the CommentThread element
-      // is two levels of parentage up from the CommentThread element
-      // and has the class ".docos-docoview-tesla-conflict"
-      this.targetThread.element.parentElement.parentElement.dispatchEvent(
-        new MouseEvent("click")
-      );
+      // this.targetThread can become undefined if the user has resolved, accepted,
+      // or rejected all discussions that match the filter criteria.
+      if(this.targetThread){
+        // The clickable outer wrapper of the CommentThread element
+        // is two levels of parentage up from the CommentThread element
+        // and has the class ".docos-docoview-tesla-conflict"
+        this.targetThread.element.parentElement.parentElement.dispatchEvent(
+          new MouseEvent("click")
+        );
+      }
     });
     return this.wrapper;
   }
@@ -214,8 +218,6 @@ export function PrevButton(): NavButton {
   return new NavButton(
     "Previous",
     (tc: ThreadCollection, prevSelectedIndex?: number): CommentThread => {
-      // TODO: Consider moving the logic for dealing with the prevSelectedIndex up one
-      // calling context, into refresh().
       const selected = tc.getSelectedThread();
       // Ensure that the ThreadCollection's elements are ordered
       // in their original sequence.
@@ -231,6 +233,7 @@ export function PrevButton(): NavButton {
       ) {
         selectedIndex = prevSelectedIndex;
       }
+
       return tc.elements[Math.max(0, selectedIndex - 1)];
     }
   );

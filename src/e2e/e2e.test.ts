@@ -49,6 +49,31 @@ async function activateThread(threadIndex: number) {
 }
 
 /**
+ * resolveDiscussion simulates resolving a comment thread or accepting a suggestion.
+ * In a real Google Doc, resolving a discussion or accepting a suggestion removes the
+ * discussion thread from the DOM--so does resolveDiscussion.
+ * @param threadIndex the index of the discussion thread within
+ * an array of all discussion threads, ordered so that the highest
+ * in the document comes first.
+ */
+async function resolveDiscussion(threadIndex: number) {
+  // Remember that nth-of-type starts at 1, not 0!
+  const sel = `${conversationWrapper}:nth-of-type(${threadIndex + 1})`;
+  try {
+    await page.evaluate((selectorToRemove) => {
+      const el = document.querySelector(selectorToRemove);
+      el.remove();
+    }, sel);
+  } catch (err) {
+    // This shouldn't happen unless the fixture used for the e2e tests
+    // has changed.
+    throw new Error(
+      `Can't find an element matching the selector ${sel}: ${err}`
+    );
+  }
+}
+
+/**
  * deactivateThreads renders all discussions on the page inactive.
  */
 async function deactivateThreads() {
@@ -66,6 +91,42 @@ async function deactivateThreads() {
   // Without waiting at all, the code following deactivateThreads()
   // sometimes detects active threads.
   await sleep(50);
+}
+
+type buttonSymbol = Symbol;
+const SELECTOR_NEXT: buttonSymbol = Symbol("next");
+const SELECTOR_PREV: buttonSymbol = Symbol("previous");
+const SELECTOR_LAST: buttonSymbol = Symbol("last");
+const SELECTOR_FIRST: buttonSymbol = Symbol("first");
+
+async function clickNavButton(direction: buttonSymbol) {
+  // Check if direction is valid.
+  if (
+    ![SELECTOR_NEXT, SELECTOR_PREV, SELECTOR_LAST, SELECTOR_FIRST].includes(
+      direction
+    )
+  ) {
+    throw new Error("direction is not a valid buttonSymbol");
+  }
+
+  const buttonSelectors: Map<buttonSymbol, string> = new Map();
+  buttonSelectors.set(
+    SELECTOR_FIRST,
+    `${navigatorSelector} button[data-direction="First"]`
+  );
+  buttonSelectors.set(
+    SELECTOR_PREV,
+    `${navigatorSelector} button[data-direction="Previous"]`
+  );
+  buttonSelectors.set(
+    SELECTOR_NEXT,
+    `${navigatorSelector} button[data-direction="Next"]`
+  );
+  buttonSelectors.set(
+    SELECTOR_LAST,
+    `${navigatorSelector} button[data-direction="Last"]`
+  );
+  await page.click(buttonSelectors.get(direction));
 }
 
 async function threadCounterValue(): Promise<string> {
@@ -104,9 +165,7 @@ async function getActiveThreadIndex(): Promise<number> {
         activeSelector
       );
       if (activeThreadContainers.length !== 1) {
-        throw new Error(
-          `Got ${activeThreadContainers.length} active thread containers!`
-        );
+        return -1;
       }
       const allThreadContainers = [
         ...document.querySelectorAll(threadSelector),
@@ -251,9 +310,7 @@ describe("When a user loads the navigator UI", () => {
       try {
         const indexWithinOptions = await page.evaluate((auth) => {
           const opts = [...document.body.querySelectorAll("select option")];
-          const desiredElement = [
-            ...document.body.querySelectorAll("select option"),
-          ].find((el) => {
+          const desiredElement = opts.find((el) => {
             return el.textContent == auth;
           });
           return opts.indexOf(desiredElement);
@@ -303,7 +360,7 @@ describe("The navigation buttons", () => {
   interface testCase {
     startingIndex: number; // Which thread to begin from
     expectedIndex: number; // Which thread we should end up with
-    buttonSelector: string; // For determining where to click
+    button: buttonSymbol; // For determining where to click
   }
 
   test("Clicking a navigation button should activate the expected thread", async () => {
@@ -312,25 +369,25 @@ describe("The navigation buttons", () => {
       {
         startingIndex: 3,
         expectedIndex: 0,
-        buttonSelector: `${navigatorSelector} button[data-direction="First"]`,
+        button: SELECTOR_FIRST,
       },
       // Go to previous
       {
         startingIndex: 3,
         expectedIndex: 2,
-        buttonSelector: `${navigatorSelector} button[data-direction="Previous"]`,
+        button: SELECTOR_PREV,
       },
       // Go to next
       {
         startingIndex: 2,
         expectedIndex: 3,
-        buttonSelector: `${navigatorSelector} button[data-direction="Next"]`,
+        button: SELECTOR_NEXT,
       },
       // Go to last
       {
         startingIndex: 1,
         expectedIndex: Math.max(0, fixture.length - 1),
-        buttonSelector: `${navigatorSelector} button[data-direction="Last"]`,
+        button: SELECTOR_LAST,
       },
     ];
     // Can't use forEach here because the code is asynchronous and we
@@ -341,8 +398,7 @@ describe("The navigation buttons", () => {
         // Make the starting thread active by clicking on it
         await activateThread(tc.startingIndex);
 
-        // Click the button
-        await page.click(tc.buttonSelector);
+        await clickNavButton(tc.button);
         // wait a bit
         await sleep(200);
 
@@ -361,13 +417,13 @@ describe("The navigation buttons", () => {
       {
         startingIndex: 3,
         expectedIndex: 2,
-        buttonSelector: `${navigatorSelector} button[data-direction="Previous"]`,
+        button: SELECTOR_PREV,
       },
       // Go to next
       {
         startingIndex: 2,
         expectedIndex: 3,
-        buttonSelector: `${navigatorSelector} button[data-direction="Next"]`,
+        button: SELECTOR_NEXT,
       },
     ];
     // Can't use forEach here because the code is asynchronous and we
@@ -380,8 +436,8 @@ describe("The navigation buttons", () => {
 
         await deactivateThreads();
 
-        // Click the button
-        await page.click(tc.buttonSelector);
+        await clickNavButton(tc.button);
+
         // wait a bit
         await sleep(200);
 
@@ -390,9 +446,36 @@ describe("The navigation buttons", () => {
         expect(actualIndex).toEqual(tc.expectedIndex);
       } catch (err) {
         fail(
-          `Couldn't navigate correctly from: \n${tc.buttonSelector}\n${err}`
+          `Couldn't navigate correctly from the selected button: \n${tc.button}\n${err}`
         );
       }
     }
+  });
+
+  test('if you resolve/accept/reject the only discussion that matches filters, then navigate to the previous thread, there shouldn\'t be an error', async () => {
+
+    // 1. Enter search criteria
+    // Looking for all comments that end with a question
+    await page.type(
+      `${navigatorSelector} input[name="regexpSearch"]`,
+      "good" // In the current e2e environment, this filter produces one result
+    );
+    await sleep(300);
+
+    // 2.
+    await clickNavButton(SELECTOR_NEXT);
+    await sleep(300);
+
+    const prevActiveIndex = await getActiveThreadIndex();
+
+    // 3. Resolve/accept the currently active discussion
+    await resolveDiscussion(prevActiveIndex);
+    await sleep(300);
+
+    // 4. Click "Previous"
+    // "Return a promise from your test, and Jest will wait for that promise to resolve.
+    // If the promise is rejected, the test will automatically fail."
+    // https://jestjs.io/docs/en/asynchronous#promises
+    return clickNavButton(SELECTOR_PREV);
   });
 });

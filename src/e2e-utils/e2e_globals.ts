@@ -40,3 +40,37 @@ document.body.style.height = window.innerHeight + "px";
 (document.querySelector(
   selectors.discussionScrollContext
 ) as HTMLElement).style.height = `${window.innerHeight - 100}px`;
+
+// Delete a discussion thread that has been resolved.
+document.querySelectorAll("div.docos-replyview-resolve-button-original").forEach(el=>{
+  (el as HTMLElement).style.cursor = "pointer";
+  el.addEventListener('click', (e: MouseEvent)=>{
+    (e.target as HTMLElement)
+    .parentElement // div.docos-anchoredreplyview-buttonholder.hide-on-readonly
+    .parentElement // div.docos-anchoredreplyview-header
+    .parentElement // div.docos-anchoredreplyview.docos-replyview-first.docos-replyview-comment
+    .parentElement // div.docos-docoview-rootreply
+    .parentElement // div.docos-anchoreddocoview-content.docos-docoview-replycontainer
+    .parentElement // div.docos-anchoreddocoview-internal
+    .parentElement // div.docos-docoview-tesla-conflict.docos-docoview-resolve-button-visible.docos-anchoreddocoview
+    .remove();
+  })
+})
+
+// Delete a discussion that has been accepted or rejected
+document.querySelectorAll("div.docos-accept-suggestion,div.docos-reject-suggestion").forEach(el=>{
+  (el as HTMLElement).style.cursor = "pointer";
+  el.addEventListener('click', e=>{
+    console.log((e.target as HTMLElement).parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
+    (e.target as HTMLElement)
+    .parentElement // svg
+    .parentElement // div.docos-anchoredreplyview-buttonholder.hide-on-readonly
+    .parentElement // div.docos-anchoredreplyview-header
+    .parentElement // div.docos-anchoredreplyview.docos-replyview-first.docos-replyview-suggest
+    .parentElement // div.docos-docoview-rootreply
+    .parentElement // div.docos-anchoreddocoview-content.docos-docoview-replycontainer
+    .parentElement // div.docos-anchoreddocoview-internal
+    .parentElement // div.docos-docoview-tesla-conflict.docos-anchoreddocoview
+    .remove();
+  })
+})
