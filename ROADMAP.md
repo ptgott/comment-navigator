@@ -20,6 +20,8 @@
 
   Also, when clicking "next" after answering a discussion, we skip the real next discussion.
 
+- Fix this bug: If you open the comment history panel with the Comment Navigator script running, an error occurs and the Google Document doesn't load
+
 - Release v1
 
 ## Features for after the MVP
