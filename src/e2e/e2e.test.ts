@@ -90,7 +90,7 @@ async function deactivateThreads() {
 
   // Without waiting at all, the code following deactivateThreads()
   // sometimes detects active threads.
-  await sleep(50);
+  await sleep(300);
 }
 
 type buttonSymbol = Symbol;
@@ -327,7 +327,6 @@ describe("When a user loads the navigator UI", () => {
     });
 
     test("adding a regexp search term should change the thread counter accordingly", async () => {
-      // Looking for all comments that end with a question
       await page.type(
         `${navigatorSelector} input[name="regexpSearch"]`,
         "\\?$" // Need to escape the escape character or Puppeteer will remove it
@@ -446,7 +445,7 @@ describe("The navigation buttons", () => {
         expect(actualIndex).toEqual(tc.expectedIndex);
       } catch (err) {
         fail(
-          `Couldn't navigate correctly from the selected button: \n${tc.button}\n${err}`
+          `Couldn't navigate correctly from the selected button: \n${tc.button.toString()}\n${err}`
         );
       }
     }
@@ -454,14 +453,14 @@ describe("The navigation buttons", () => {
 
   test('if you resolve/accept/reject the only discussion that matches filters, then navigate to the previous thread, there shouldn\'t be an error', async () => {
 
+
     // 1. Enter search criteria
-    // Looking for all comments that end with a question
     await page.type(
       `${navigatorSelector} input[name="regexpSearch"]`,
-      "good" // In the current e2e environment, this filter produces one result
-    );
-    await sleep(300);
-
+      "good" // With the current fixture, this filter produces one result
+      );
+      await sleep(300);
+  
     // 2.
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
@@ -477,5 +476,59 @@ describe("The navigation buttons", () => {
     // If the promise is rejected, the test will automatically fail."
     // https://jestjs.io/docs/en/asynchronous#promises
     return clickNavButton(SELECTOR_PREV);
+  });
+
+  test("if all discussions are inactive, navigating to the next discussion matching filter criteria shouldn't skip a discussion", async ()=>{
+    // 1. Enter search criteria
+    await page.type(
+      `${navigatorSelector} input[name="regexpSearch"]`,
+      // Looking for any discussion that includes a literal "?" character.
+      // This should filter to 3/5 discussions
+      '\\?' 
+    );
+    await sleep(300);
+
+    // 2. Click "next," which should take us to the thread with index 1
+    // within all discussion threads.
+    await clickNavButton(SELECTOR_NEXT);
+    await sleep(300);
+    
+    // 3. 
+    await deactivateThreads();
+    
+    // 4.
+    await clickNavButton(SELECTOR_NEXT);
+    await sleep(300);
+    
+    // We should navigate to the discussion with index 3 (among all discussions,
+    // unfiltered)
+    expect(await getActiveThreadIndex()).toEqual(3);
+  });
+
+  test("if all discussions are inactive, navigating to the previous discussion matching filter criteria shouldn't skip a discussion", async ()=>{
+    // 1. Enter search criteria
+    await page.type(
+      `${navigatorSelector} input[name="regexpSearch"]`,
+      // Looking for any discussion that includes a literal "?" character.
+      // This should filter to 3/5 discussions
+      '\\?' 
+    );
+    await sleep(300);
+
+    // 2. Go to the final discussion matching the criteria.
+    // This should be the final discussion.
+    await clickNavButton(SELECTOR_LAST);
+    await sleep(300);
+    
+    // 3. 
+    await deactivateThreads();
+        
+    // 4.
+    await clickNavButton(SELECTOR_PREV);
+    await sleep(300);
+
+    // We should navigate to the discussion with index 3 (among all discussions,
+    // unfiltered), the second-to-last thread
+    expect(await getActiveThreadIndex()).toEqual(3);
   });
 });

@@ -84,12 +84,4 @@ export class ThreadCollection {
     });
   }
 
-  /**
-   * getSelectedThreadIndex returns the index of the selected thread
-   * within all threads in the ThreadCollection--ordering the threads
-   * is left to the caller.
-   */
-  getSelectedThreadIndex(): number {
-    return this.elements.indexOf(this.getSelectedThread());
-  }
 }

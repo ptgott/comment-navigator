@@ -4,8 +4,6 @@
 
 ## Next up in the MVP (by priority)
 
-- When clicking "next" after answering a discussion, we skip the real next discussion. Fix that, then do more exploratory manual testing on the navigation to make sure the navigation buttons work as expected.
-
 - Set up a release process by configuring a GitHub action to sync with a public gist on release. GitHub Actions is free for public repos (https://github.com/features/actions).
 
   - Figure out how to make a GitHub token safely available to the GitHub Action (i.e., without hardcoding it into the repo).

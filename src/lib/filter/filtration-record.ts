@@ -1,3 +1,5 @@
+import { CommentThreadOptions } from "../test-utils/mock-html";
+import { CommentThread } from "../thread/comment-thread";
 import { ThreadCollection } from "../thread/thread-collection";
 import { FilterCollection } from "./filter-collection";
 
@@ -20,6 +22,7 @@ export class FiltrationRecord {
   public before: ThreadCollection;
   public after: ThreadCollection;
   public filters: FilterCollection;
+  public previouslySelectedDiscussion: CommentThread;
 
   /**
    *
@@ -28,15 +31,18 @@ export class FiltrationRecord {
    * @param after ThreadCollection after applying the
    * filters
    * @param filters The filters applied to "before"
+   * @param {CommentThread} previouslySelectedDiscussion the last CommentThread that
+   * was active, regardless of whether it is also currently active.
    */
   constructor(
     before: ThreadCollection,
     after: ThreadCollection,
-    filters: FilterCollection
+    filters: FilterCollection,
+    previouslySelectedDiscussion: CommentThread
   ) {
-    // TODO: Determine whether to perform validation here
     this.before = before;
     this.after = after;
     this.filters = filters;
+    this.previouslySelectedDiscussion = previouslySelectedDiscussion;
   }
 }

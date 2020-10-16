@@ -76,6 +76,8 @@ const templ = `
   ${conversationWrapper} {
     border: 1px solid black;
     padding: 2px;
+    max-width: 500px;
+    margin: 20px;
   }
   div#conversations {
     position: absolute;

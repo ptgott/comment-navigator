@@ -2,12 +2,13 @@
 
 import { CommentNavigator } from "./comment-navigator";
 import { FiltrationRecord } from "../filter/filtration-record";
-import { ThreadCollection } from "../thread/thread-collection";
+import { ParseForThreads, ThreadCollection } from "../thread/thread-collection";
 import { TestNavigatorControl } from "../test-utils/test-navigator-control";
 import {
   MockSuggestionThread,
   MockCommentThread,
 } from "../test-utils/mock-html";
+import { author } from "../constants/selectors"
 
 beforeEach(() => {
   document.body.innerHTML = "";
@@ -66,6 +67,7 @@ describe("CommentNavigator", () => {
       new FiltrationRecord(
         new ThreadCollection([]),
         new ThreadCollection([]),
+        null,
         null
       )
     );
@@ -100,7 +102,7 @@ describe("CommentNavigator", () => {
     );
   });
 
-  test("readAndRefresh assigns previouslySelectedThreadIndex if a thread is selected", () => {
+  test("readAndRefresh assigns previouslySelectedThread if a thread is selected", () => {
     const expectedIndex = 2;
     document.body.innerHTML = [
       MockSuggestionThread({
@@ -130,9 +132,14 @@ describe("CommentNavigator", () => {
       0
     );
 
+    const tc = ParseForThreads(document.body);
+
     n.render(document.body);
     n.readAndRefresh();
-    expect(n.previouslySelectedThreadIndex).toEqual(expectedIndex);
+    
+    // Comparing text contents to circumvent JavaScript object equivalence
+    // weirdness
+    expect(tc.elements.map(el=>{return el.element.textContent}).indexOf(n.previouslySelectedThread.element.textContent)).toEqual(expectedIndex);
   });
 
   test("minimize does not remove subcomponents from the DOM", (done) => {

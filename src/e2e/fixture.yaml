@@ -3,6 +3,10 @@
 # conditions without having to repeat the business logic of the
 # comment navigator itself.
 
+# IMPORTANT: e2e tests depend on the precise order and content of this
+# fixture. Be sure to run the e2e tests before and after changing the fixture
+# to ensure nothing breaks.
+
 - type: commentThread
   author: "Fake Fakesley"
   text: "This could use a bit more work."

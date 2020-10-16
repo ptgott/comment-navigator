@@ -7,7 +7,6 @@ import {
   SuggestionsFilter,
 } from "../filter/filter";
 import { FiltrationRecord } from "../filter/filtration-record";
-import { ThreadCollection } from "../thread/thread-collection";
 import { FilterCollection } from "../filter/filter-collection";
 
 /** NavigatorControl represents a single
@@ -105,8 +104,7 @@ export class ThreadCount extends NavigatorControl {
  */
 export class NavButton extends NavigatorControl {
   private nextTarget: (
-    tc: ThreadCollection,
-    prevSelectedIndex?: number
+    fr: FiltrationRecord
   ) => CommentThread;
 
   private text: string; // For display and direction data attribute
@@ -136,15 +134,15 @@ export class NavButton extends NavigatorControl {
    */
   constructor(
     text: string,
-    targetFunc: (tc: ThreadCollection) => CommentThread
+    targetFunc: (fr: FiltrationRecord) => CommentThread
   ) {
     super();
     this.text = text;
     this.nextTarget = targetFunc;
   }
 
-  public refresh(fr: FiltrationRecord, prevSelectedIndex?: number): void {
-    this.targetThread = this.nextTarget(fr.after, prevSelectedIndex);
+  public refresh(fr: FiltrationRecord): void {
+    this.targetThread = this.nextTarget(fr);
   }
 
   public render(): HTMLElement {
@@ -176,6 +174,50 @@ export class NavButton extends NavigatorControl {
     // Returns no filters since it's not an input
     return new FilterCollection([], "AND");
   }
+
+  /**
+   * startingDiscussionForNavigation returns the CommentThread to take as a reference
+   * when navigating. Makes no assumptions about the direction in which the user
+   * will navigate. Returns undefined if there is no current or previously active
+   * discussion.
+   * @param {FiltrationRecord}
+   * @returns {CommentThread}
+   * */
+  public static startingDiscussionForNavigation(fr: FiltrationRecord): CommentThread{
+      fr.after.orderByAppearanceInPage();
+      let selected = fr.after.getSelectedThread();
+
+      // Ensure that the ThreadCollection's elements are ordered
+      // in their original sequence.
+
+      // If the user has just navigated to the Google Doc and entered
+      // search criteria, we won't have a reference point for navigation.
+      // Leave it to the caller to decide where to go.
+      if(!selected && !fr.previouslySelectedDiscussion){
+        return undefined;
+      }
+
+      // Because of the way JavaScript handles object equality, we can only
+      // determine the index of fr.previouslySelectedDiscussion and selected within
+      // fr.after using value comparison. We'll construct arrays of element texts
+      // and compare those. See:
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness
+      const afterTexts = fr.after.elements.map(el => { return el.element.innerHTML; })
+      
+      // If there's no currently selected discussion but there is a previously
+      // selected one, and it satisfies all the filters, return the previous one.
+      if (
+        [
+          !selected,
+          !!fr.previouslySelectedDiscussion,
+          afterTexts.indexOf(fr.previouslySelectedDiscussion.element.innerHTML) !== -1,
+        ].every((el)=>{ return el })
+      ) {
+        selected = fr.previouslySelectedDiscussion;
+      }
+
+      return selected;
+  }
 }
 
 /** NextButton creates a NavButton that moves the user to the next
@@ -184,29 +226,21 @@ export class NavButton extends NavigatorControl {
 export function NextButton(): NavButton {
   return new NavButton(
     "Next",
-    (tc: ThreadCollection, prevSelectedIndex?: number): CommentThread => {
-      // TODO: Consider moving the logic for dealing with the prevSelectedIndex up one
-      // calling context, into refresh().
-      const selected = tc.getSelectedThread();
-      // Ensure that the ThreadCollection's elements are ordered
-      // in their original sequence.
-      tc.orderByAppearanceInPage();
-      let selectedIndex = tc.elements.indexOf(selected);
+    (fr: FiltrationRecord): CommentThread => {
+      const selected = NavButton.startingDiscussionForNavigation(fr);
 
-      // If no element is currently selected, return the
-      // index of the one that was previously selected.
-      if (
-        selectedIndex == -1 &&
-        prevSelectedIndex >= 0 &&
-        prevSelectedIndex !== null
-      ) {
-        selectedIndex = prevSelectedIndex;
+      let selectedIndex: number;
+
+      if(!selected){
+         // pretend it's the failure condition of indexOf
+        selectedIndex = -1;
       }
-      // Handle cases where the ThreadCollection is empty
-      const maxIndex = Math.max(tc.elements.length - 1, 0);
-
+      else{
+        selectedIndex = fr.after.elements.map(el=>{ return el.element.innerHTML; }).indexOf(selected.element.innerHTML);
+      }
+      const maxIndex = Math.max(fr.after.elements.length - 1, 0);
       // Don't try to overshoot the last element
-      return tc.elements[Math.min(maxIndex, selectedIndex + 1)];
+      return fr.after.elements[Math.min(maxIndex, selectedIndex + 1)];
     }
   );
 }
@@ -217,24 +251,18 @@ export function NextButton(): NavButton {
 export function PrevButton(): NavButton {
   return new NavButton(
     "Previous",
-    (tc: ThreadCollection, prevSelectedIndex?: number): CommentThread => {
-      const selected = tc.getSelectedThread();
-      // Ensure that the ThreadCollection's elements are ordered
-      // in their original sequence.
-      tc.orderByAppearanceInPage();
-      let selectedIndex = tc.elements.indexOf(selected);
+    (fr: FiltrationRecord): CommentThread => {
+      const selected = NavButton.startingDiscussionForNavigation(fr);
 
-      // If no element is currently selected, return the
-      // index of the one that was previously selected.
-      if (
-        selectedIndex == -1 &&
-        prevSelectedIndex >= 0 &&
-        prevSelectedIndex !== null
-      ) {
-        selectedIndex = prevSelectedIndex;
-      }
+      let selectedIndex: number;
+      if(!selected){
+        // pretend it's the failure condition of indexOf
+       selectedIndex = -1;
+     }else{
+       selectedIndex = fr.after.elements.map(el=>{ return el.element.innerHTML; }).indexOf(selected.element.innerHTML);
+     }
 
-      return tc.elements[Math.max(0, selectedIndex - 1)];
+      return fr.after.elements[Math.max(0, selectedIndex - 1)];
     }
   );
 }
@@ -245,11 +273,11 @@ export function PrevButton(): NavButton {
 export function FirstButton(): NavButton {
   return new NavButton(
     "First",
-    (tc: ThreadCollection): CommentThread => {
+    (fr: FiltrationRecord): CommentThread => {
       // Ensure that the ThreadCollection's elements are ordered
       // in their original sequence.
-      tc.orderByAppearanceInPage();
-      return tc.elements[0];
+      fr.after.orderByAppearanceInPage();
+      return fr.after.elements[0];
     }
   );
 }
@@ -260,11 +288,11 @@ export function FirstButton(): NavButton {
 export function LastButton(): NavButton {
   return new NavButton(
     "Last",
-    (tc: ThreadCollection): CommentThread => {
+    (fr: FiltrationRecord): CommentThread => {
       // Ensure that the ThreadCollection's elements are ordered
       // in their original sequence.
-      tc.orderByAppearanceInPage();
-      return tc.elements[Math.max(0, tc.elements.length - 1)];
+      fr.after.orderByAppearanceInPage();
+      return fr.after.elements[Math.max(0, fr.after.elements.length - 1)];
     }
   );
 }

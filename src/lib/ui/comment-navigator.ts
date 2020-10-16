@@ -2,6 +2,9 @@ import { NavigatorControl } from "./navigator-control";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
 import { ParseForThreads } from "../thread/thread-collection";
+import { CommentThreadOptions } from "../test-utils/mock-html";
+import { CommentThread } from "../thread/comment-thread";
+import { author } from "../constants/selectors";
 
 /**
  * CommentNavigator represents the UI component for the
@@ -10,10 +13,12 @@ import { ParseForThreads } from "../thread/thread-collection";
  * caller should call window.setInterval (or some other means)
  * to periodically refresh the state of the component.
  *
- * @property {HTMLElement} element - The HTML component itself.
- * @property {HTMLElement} minButton - Component used for minimizing the navigator
- * @property {HTMLElement} context - the Comment Navigator will render itself
+ * @property {HTMLElement} element The HTML component itself.
+ * @property {HTMLElement} minButton Component used for minimizing the navigator
+ * @property {HTMLElement} context the Comment Navigator will render itself
  * as a child of this element, and search this element for discussion threads.
+ * @property {CommentThread} previouslySelectedThread The last discussion thread
+ * to be active, regardless of whether it was currently active.
  */
 export class CommentNavigator {
   public element: HTMLElement;
@@ -21,16 +26,7 @@ export class CommentNavigator {
   public minButton: HTMLElement;
   public minimized: boolean;
   private refreshInterval: number;
-
-  /**
-   * previouslySelectedThreadIndex is the zero-based position of the previously
-   * selected comment thread within all threads in the document, ordered from
-   * first to last displayed.
-   * We need to store this so users can deselect all discussion threads in
-   * the doc but continue navigating where it would be reasonable, without
-   * having to go back to the beginning of the doc.
-   */
-  previouslySelectedThreadIndex: number;
+  public previouslySelectedThread: CommentThread;
 
   /**
    * For rendering and refreshing, CommentNavigator
@@ -165,17 +161,17 @@ export class CommentNavigator {
     const threadsBefore = ParseForThreads(this.context);
     // Take this from threadsBefore since a thread can be filtered out
     // but still selected.
-    const st = threadsBefore.getSelectedThreadIndex();
+    const st = threadsBefore.getSelectedThread();
 
-    if (st >= 0) {
-      this.previouslySelectedThreadIndex = st;
+    
+    if(!!st){
+      this.previouslySelectedThread = st;
     }
 
     const fc = this.readFilters();
     const threadsAfter = fc.use(threadsBefore);
     this.refresh(
-      new FiltrationRecord(threadsBefore, threadsAfter, fc),
-      this.previouslySelectedThreadIndex
+      new FiltrationRecord(threadsBefore, threadsAfter, fc, this.previouslySelectedThread)
     );
   }
 

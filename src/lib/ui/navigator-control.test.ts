@@ -84,7 +84,8 @@ describe("ThreadCount", () => {
     const fr = new FiltrationRecord(
       coll,
       filtered,
-      new FilterCollection([], "AND")
+      new FilterCollection([], "AND"),
+      null
     );
 
     threadCount.refresh(fr);
@@ -97,8 +98,8 @@ describe("ThreadCount", () => {
 describe("NavButton", () => {
   const testNavButton = new NavButton(
     "Test",
-    (tc: ThreadCollection): CommentThread => {
-      return tc.elements[0];
+    (fr: FiltrationRecord): CommentThread => {
+      return fr.after.elements[0];
     }
   );
   test("renders a button", () => {
@@ -123,7 +124,7 @@ describe("NavButton", () => {
     document.body.appendChild(testNavButton.render());
     const tc = ParseForThreads(document.body);
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, null);
     const expected = "click";
     const el = testNavButton.controlElement();
     testNavButton.refresh(fr);
@@ -171,7 +172,7 @@ describe("NextButton", () => {
     const tc = ParseForThreads(document.body);
     const nb = NextButton();
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, tc.elements[1]);
     nb.refresh(fr);
     const actualText = nb.target().element.querySelector(selectors.commentBody)
       .textContent;
@@ -224,8 +225,8 @@ describe("NextButton", () => {
       const tc = ParseForThreads(document.body);
       const nb = NextButton();
       const fc = new FilterCollection([], "AND");
-      const fr = new FiltrationRecord(tc, tc, fc);
-      nb.refresh(fr, c.prevIndex);
+      const fr = new FiltrationRecord(tc, tc, fc, tc.elements[c.prevIndex]);
+      nb.refresh(fr);
       const actualText = nb
         .target()
         .element.querySelector(selectors.commentBody).textContent;
@@ -260,7 +261,7 @@ describe("PrevButton", () => {
     const tc = ParseForThreads(document.body);
     const pb = PrevButton();
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, tc.elements[1]);
     pb.refresh(fr);
     const actualText = pb.target().element.querySelector(selectors.commentBody)
       .textContent;
@@ -314,8 +315,8 @@ describe("PrevButton", () => {
       const tc = ParseForThreads(document.body);
       const nb = PrevButton();
       const fc = new FilterCollection([], "AND");
-      const fr = new FiltrationRecord(tc, tc, fc);
-      nb.refresh(fr, c.prevIndex);
+      const fr = new FiltrationRecord(tc, tc, fc, tc.elements[c.prevIndex]);
+      nb.refresh(fr);
       const actualText = nb
         .target()
         .element.querySelector(selectors.commentBody).textContent;
@@ -350,7 +351,7 @@ describe("FirstButton", () => {
     const tc = ParseForThreads(document.body);
     const pb = FirstButton();
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, null);
     pb.refresh(fr);
     const actualText = pb.target().element.querySelector(selectors.commentBody)
       .textContent;
@@ -384,7 +385,7 @@ describe("LastButton", () => {
     const tc = ParseForThreads(document.body);
     const pb = LastButton();
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, null);
     pb.refresh(fr);
     const actualText = pb.target().element.querySelector(selectors.commentBody)
       .textContent;
@@ -424,7 +425,7 @@ describe("AuthorSelectBox", () => {
     ].join("\n");
     tc = ParseForThreads(document.body);
     asb = new AuthorSelectBox();
-    fr = new FiltrationRecord(tc, tc, null);
+    fr = new FiltrationRecord(tc, tc, null, null);
     box = asb.render();
     asb.refresh(fr);
   });
@@ -483,7 +484,7 @@ describe("AuthorSelectBox", () => {
       }),
     ].join("\n");
     const tc2 = ParseForThreads(document.body);
-    const fr2 = new FiltrationRecord(tc2, tc2, null);
+    const fr2 = new FiltrationRecord(tc2, tc2, null, null);
     // Second refresh after the beforeEach block
     asb.refresh(fr2);
     const expectedNames = ["Fake User", "Example User"];
@@ -510,7 +511,7 @@ describe("RegexpSearchBox", () => {
     const tc = ParseForThreads(document.body);
     const nb = NextButton();
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, null);
     rsb.refresh(fr);
     expect(rsb.wrapper.innerHTML).toEqual(before);
   });
@@ -547,7 +548,7 @@ describe("ThreadTypeCheckBoxes", () => {
     const tc = ParseForThreads(document.body);
     const nb = NextButton();
     const fc = new FilterCollection([], "AND");
-    const fr = new FiltrationRecord(tc, tc, fc);
+    const fr = new FiltrationRecord(tc, tc, fc, null);
     ttc.refresh(fr);
     expect(ttc.wrapper.innerHTML).toEqual(before);
   });
