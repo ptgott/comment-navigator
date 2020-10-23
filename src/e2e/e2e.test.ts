@@ -453,7 +453,6 @@ describe("The navigation buttons", () => {
 
   test('if you resolve/accept/reject the only discussion that matches filters, then navigate to the previous thread, there shouldn\'t be an error', async () => {
 
-
     // 1. Enter search criteria
     await page.type(
       `${navigatorSelector} input[name="regexpSearch"]`,
@@ -529,6 +528,39 @@ describe("The navigation buttons", () => {
 
     // We should navigate to the discussion with index 3 (among all discussions,
     // unfiltered), the second-to-last thread
+    expect(await getActiveThreadIndex()).toEqual(3);
+  });
+
+  test("if you resolve the > 1st discussion matching criteria, clicking \"next\" should take you to the next discussion", async ()=>{
+    // 1. Enter search criteria
+    await page.type(
+      `${navigatorSelector} input[name="regexpSearch"]`,
+      // Looking for any discussion that includes a literal "?" character.
+      // This should filter to 3/5 discussions
+      '\\?' 
+    );
+    await sleep(300);
+
+    // 2. Navigate to a discussion after the first that matches the criteria
+    await clickNavButton(SELECTOR_NEXT);
+    await sleep(300);
+    
+    await clickNavButton(SELECTOR_NEXT);
+    await sleep(300);
+    
+    // 3. resolve the discussion
+    await resolveDiscussion(await getActiveThreadIndex());
+    await sleep(300);
+    
+    // 4. Navigate to the next discussion. If we're breezing through a document
+    // responding to discussion threads, we'd expect this to take us to the final
+    // discussion in the document, rather than reversing our course and taking us
+    // to the first discussion.
+    await clickNavButton(SELECTOR_NEXT);
+    await sleep(300);
+    
+    // We should be at the final discussion in the list, which now has the
+    // index 3, rather than 4, since one discussion was resolved.
     expect(await getActiveThreadIndex()).toEqual(3);
   });
 });

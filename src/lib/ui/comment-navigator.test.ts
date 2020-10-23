@@ -104,7 +104,7 @@ describe("CommentNavigator", () => {
 
   test("readAndRefresh assigns previouslySelectedThread if a thread is selected", () => {
     const expectedIndex = 2;
-    document.body.innerHTML = [
+    document.body.innerHTML = "<div id='context'>" + [
       MockSuggestionThread({
         author: "Example Author 1",
         text: "Example text",
@@ -121,7 +121,7 @@ describe("CommentNavigator", () => {
         replies: [],
         isActive: true,
       }),
-    ].join("\n");
+    ].join("\n") + "</div>";
 
     const n = new CommentNavigator(
       [
@@ -132,7 +132,7 @@ describe("CommentNavigator", () => {
       0
     );
 
-    const tc = ParseForThreads(document.body);
+    const tc = ParseForThreads(document.querySelector("#context"));
 
     n.render(document.body);
     n.readAndRefresh();

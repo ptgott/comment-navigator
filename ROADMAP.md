@@ -1,7 +1,5 @@
 # ROADMAP
 
-## Doing broadly
-
 ## Next up in the MVP (by priority)
 
 - Set up a release process by configuring a GitHub action to sync with a public gist on release. GitHub Actions is free for public repos (https://github.com/features/actions).
@@ -20,6 +18,8 @@
 - Release v1
 
 ## Features for after the MVP
+
+- Clean up the test fixture interface. We should export as little as possible from `src/lib/test-utils/mock-html.ts`. This will make it easier to standardize fixtures across unit tests as well as between unit tests and e2e tests.
 
 - Currently there's no good way to test the navigator against a document with an indefinite number of comment threads. To see how the navigator components render with, say, 1,500 discussions or 50 authors, the current easiest solution is to edit `fixture.yaml` and run `npm run e2e-inspect`. But this doens't play well with the e2e tests as they're currently written.
 

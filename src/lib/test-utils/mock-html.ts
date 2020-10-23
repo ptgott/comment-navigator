@@ -10,21 +10,21 @@
  * its first comment and any child comments.
  */
 export interface CommentThreadOptions {
-  author: string; // First comment author
-  text: string; // First comment text
-  replies: Array<ChildCommentOptions>;
-  isActive?: boolean;
-  isAssigned?: boolean; // We don't care right now who it's assigned to
+    author: string; // First comment author
+    text: string; // First comment text
+    replies: Array<ChildCommentOptions>;
+    isActive?: boolean;
+    isAssigned?: boolean; // We don't care right now who it's assigned to
 }
 
 /** SuggestionThreadOptions lets you design a suggestion thread,
  * including its first suggestion and any child comments
  */
 export interface SuggestionThreadOptions {
-  author: string; // First suggestion author
-  text: string; // What happened in the suggestion thread (e.g., "Delete space")
-  replies: Array<ChildCommentOptions>;
-  isActive?: boolean;
+    author: string; // First suggestion author
+    text: string; // What happened in the suggestion thread (e.g., "Delete space")
+    replies: Array<ChildCommentOptions>;
+    isActive?: boolean;
 }
 
 /**
@@ -32,8 +32,8 @@ export interface SuggestionThreadOptions {
  * or suggestion thread.
  */
 export interface ChildCommentOptions {
-  author: string;
-  text: string;
+    author: string;
+    text: string;
 }
 
 /**
@@ -57,7 +57,7 @@ export interface ChildCommentOptions {
 @param {CommentThreadOptions} options 
  */
 export function AssigneeHeader(options: CommentThreadOptions): string {
-  return `<div class="docos-assigneeview">
+    return `<div class="docos-assigneeview">
 <table>
     <tbody>
     <tr>
@@ -103,8 +103,10 @@ export function AssigneeHeader(options: CommentThreadOptions): string {
  * @param options ChildCommentOptions
  */
 export function MockChildComment(options: ChildCommentOptions): string {
-  return `
-<div class="docos-anchoredreplyview docos-replyview-comment">
+    return `
+<div class="docos-anchoredreplyview docos-replyview-comment"
+    style="height: auto;"
+>
     <div class="docos-anchoredreplyview-header">
         <div class="docos-anchoredreplyview-avatar-holder">
             <!--avatar image omitted-->
@@ -152,17 +154,17 @@ export function MockChildComment(options: ChildCommentOptions): string {
  * @param options SuggestionThreadOptions
  */
 export function MockSuggestionThread(options: SuggestionThreadOptions): string {
-  const activeClass = options.isActive == true ? "docos-docoview-active" : "";
-  const concatenatedReplies: string = options.replies
-    .map((reply) => {
-      return MockChildComment(reply);
-    })
-    .join("\n");
+    const activeClass = options.isActive == true ? "docos-docoview-active" : "";
+    const concatenatedReplies: string = options.replies
+        .map((reply) => {
+            return MockChildComment(reply);
+        })
+        .join("\n");
 
-  return `
+    return `
 <div class="docos-docoview-tesla-conflict docos-anchoreddocoview ${activeClass}" role="listitem"
     aria-label="Comments dialog. Open comment. Author ${options.author}. ${options.replies.length} replies."
-    tabindex="0" style="left: -10px; top: 165px;">
+    tabindex="0" style="height: auto;">
     <div class="docos-anchoreddocoview-internal">
         <div class="docos-anchoreddocoview-content docos-docoview-replycontainer">
             <div class="docos-docoview-rootreply">
@@ -264,23 +266,23 @@ export function MockSuggestionThread(options: SuggestionThreadOptions): string {
  * @param options CommentThreadOptions
  */
 export function MockCommentThread(options: CommentThreadOptions): string {
-  const activeClass = options.isActive == true ? "docos-docoview-active" : "";
+    const activeClass = options.isActive == true ? "docos-docoview-active" : "";
 
-  const concatenatedReplies: string = options.replies
-    .map((reply) => {
-      return MockChildComment(reply);
-    })
-    .join("\n");
+    const concatenatedReplies: string = options.replies
+        .map((reply) => {
+            return MockChildComment(reply);
+        })
+        .join("\n");
 
-  return `
+    return `
 <div class="docos-docoview-tesla-conflict docos-docoview-resolve-button-visible docos-anchoreddocoview ${activeClass}" role="listitem"
     aria-label="Comments dialog. Open comment. Author ${options.author}. ${
-    options.replies.length
-  } replies." tabindex="0"
-    style="left: 25px; top: 105px;">
+        options.replies.length
+        } replies." tabindex="0"
+    style="height: auto;">
     <div class="docos-anchoreddocoview-internal">
         ${
-          options.isAssigned
+        options.isAssigned
             ? '<div class="docos-anchoreddocoview-content docos-anchoreddocoview-assigneecontainer"></div>'
             : ""
         }
@@ -296,11 +298,11 @@ export function MockCommentThread(options: CommentThreadOptions): string {
                         <div class="docos-anchoredreplyview-authortimestamp">
                             <div class="docos-anchoredreplyview-author docos-author"
                                 data-hovercard-id="1111111111111111111111" data-name="${
-                                  options.author
-                                }"
+        options.author
+        }"
                                 data-hovercard-owner-id="91">${
-                                  options.author
-                                }</div>
+        options.author
+        }</div>
                             <div class="docos-anchoredreplyview-timestamp docos-replyview-timestamp">7:50 PM May 1</div>
                         </div>
                         <div class="docos-anchoredreplyview-buttonholder hide-on-readonly">

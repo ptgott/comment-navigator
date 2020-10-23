@@ -19,7 +19,7 @@ interface testCase {
 }
 
 beforeEach(() => {
-  document.body.innerHTML = [
+  document.body.innerHTML = "<div id='context'>" + [
     MockSuggestionThread({
       author: "Foo Bar",
       text: "This is a comment",
@@ -64,7 +64,7 @@ beforeEach(() => {
         },
       ],
     }),
-  ].join("\n");
+  ].join("\n") + "</div>";
 });
 
 describe("FilterCollection", () => {

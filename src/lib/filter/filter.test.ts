@@ -43,7 +43,7 @@ describe("Filter", () => {
 
 describe("FinalCommentAuthorNameFilter", () => {
   test("filters threads by the author of the final comment", () => {
-    document.body.innerHTML = [
+    document.body.innerHTML = "<div id='context'>" + [
       MockCommentThread({
         author: "Foo Bar",
         text: "This is a thread",
@@ -84,7 +84,7 @@ describe("FinalCommentAuthorNameFilter", () => {
           },
         ],
       }),
-    ].join("\n");
+    ].join("\n") + "</div>";
 
     const authorCases: Array<testCase> = [
       {
@@ -104,7 +104,7 @@ describe("FinalCommentAuthorNameFilter", () => {
     ];
 
     authorCases.forEach((ac) => {
-      const tc = ParseForThreads(document.getElementsByTagName("body")[0]);
+      const tc = ParseForThreads(document.getElementsByTagName("body")[0] as HTMLBodyElement);
       const af = new FinalCommentAuthorNameFilter(ac.input);
       const results = af.use(tc);
       expect(results.elements.length).toEqual(ac.results);
@@ -114,7 +114,7 @@ describe("FinalCommentAuthorNameFilter", () => {
 
 describe("RegexpBodyFilter", () => {
   test("filters threads by regular expression", () => {
-    document.body.innerHTML = [
+    document.body.innerHTML = "<div id='context'>" + [
       MockCommentThread({
         author: "Foo Bar",
         text: "This is a comment",
@@ -145,7 +145,7 @@ describe("RegexpBodyFilter", () => {
           },
         ],
       }),
-    ].join("\n");
+    ].join("\n") + "</div>";
     const regexpCases: Array<testCase> = [
       {
         input: "[][", // An invalid case
@@ -175,7 +175,7 @@ describe("RegexpBodyFilter", () => {
 
 describe("SuggestionsFilter", () => {
   test("filters threads to show only suggestion threads", () => {
-    document.body.innerHTML = [
+    document.body.innerHTML = "<div id='context'>" + [
       MockCommentThread({
         author: "Foo Bar",
         text: "This is a thread",
@@ -191,9 +191,9 @@ describe("SuggestionsFilter", () => {
         text: "This is a thread",
         replies: [],
       }),
-    ].join("\n");
+    ].join("\n") + "</div>";
     const sugCount = 2;
-    const col = ParseForThreads(document.getElementsByTagName("body")[0]);
+    const col = ParseForThreads(document.getElementsByTagName("body")[0] as HTMLBodyElement);
     const f = new SuggestionsFilter();
     expect(f.use(col).elements.length).toEqual(sugCount);
   });
@@ -201,7 +201,7 @@ describe("SuggestionsFilter", () => {
 
 describe("CommentsFilter", () => {
   test("filters threads to show only comment threads", () => {
-    document.body.innerHTML = [
+    document.body.innerHTML = "<div id='context'>" + [
       MockCommentThread({
         author: "Foo Bar",
         text: "This is a thread",
@@ -217,10 +217,10 @@ describe("CommentsFilter", () => {
         text: "This is a thread",
         replies: [],
       }),
-    ].join("\n");
+    ].join("\n") + "</div>";
 
     const commentCount = 2;
-    const col = ParseForThreads(document.getElementsByTagName("body")[0]);
+    const col = ParseForThreads(document.getElementsByTagName("body")[0] as HTMLBodyElement);
     const f = new CommentsFilter();
     expect(f.use(col).elements.length).toEqual(commentCount);
   });

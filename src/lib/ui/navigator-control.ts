@@ -20,7 +20,7 @@ import { FilterCollection } from "../filter/filter-collection";
 export abstract class NavigatorControl {
   abstract wrapper: HTMLElement;
 
-  constructor() {}
+  constructor() { }
 
   /**
    * render produces the DOM element that does the work of the
@@ -103,9 +103,7 @@ export class ThreadCount extends NavigatorControl {
  *
  */
 export class NavButton extends NavigatorControl {
-  private nextTarget: (
-    fr: FiltrationRecord
-  ) => CommentThread;
+  private nextTarget: (fr: FiltrationRecord) => CommentThread;
 
   private text: string; // For display and direction data attribute
 
@@ -158,7 +156,7 @@ export class NavButton extends NavigatorControl {
     this.wrapper.addEventListener("click", () => {
       // this.targetThread can become undefined if the user has resolved, accepted,
       // or rejected all discussions that match the filter criteria.
-      if(this.targetThread){
+      if (this.targetThread) {
         // The clickable outer wrapper of the CommentThread element
         // is two levels of parentage up from the CommentThread element
         // and has the class ".docos-docoview-tesla-conflict"
@@ -183,40 +181,26 @@ export class NavButton extends NavigatorControl {
    * @param {FiltrationRecord}
    * @returns {CommentThread}
    * */
-  public static startingDiscussionForNavigation(fr: FiltrationRecord): CommentThread{
-      fr.after.orderByAppearanceInPage();
-      let selected = fr.after.getSelectedThread();
+  public static startingDiscussionForNavigation(
+    fr: FiltrationRecord
+  ): CommentThread {
+    let selected = fr.after.getSelectedThread();
 
-      // Ensure that the ThreadCollection's elements are ordered
-      // in their original sequence.
-
-      // If the user has just navigated to the Google Doc and entered
-      // search criteria, we won't have a reference point for navigation.
-      // Leave it to the caller to decide where to go.
-      if(!selected && !fr.previouslySelectedDiscussion){
-        return undefined;
-      }
-
-      // Because of the way JavaScript handles object equality, we can only
-      // determine the index of fr.previouslySelectedDiscussion and selected within
-      // fr.after using value comparison. We'll construct arrays of element texts
-      // and compare those. See:
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness
-      const afterTexts = fr.after.elements.map(el => { return el.element.innerHTML; })
-      
-      // If there's no currently selected discussion but there is a previously
-      // selected one, and it satisfies all the filters, return the previous one.
-      if (
-        [
-          !selected,
-          !!fr.previouslySelectedDiscussion,
-          afterTexts.indexOf(fr.previouslySelectedDiscussion.element.innerHTML) !== -1,
-        ].every((el)=>{ return el })
-      ) {
-        selected = fr.previouslySelectedDiscussion;
-      }
-
+    if (selected) {
       return selected;
+    }
+
+    // If the user has just navigated to the Google Doc and entered
+    // search criteria, we won't have a reference point for navigation.
+    // Leave it to the caller to decide where to go.
+    if (!fr.previouslySelectedDiscussion) {
+      return undefined;
+    }
+
+    // If there's no currently selected discussion but there is a previously
+    // selected one, return the previous one, even if it doesn't match all the
+    // filters--we'll let the caller determine how to handle this.
+    return fr.previouslySelectedDiscussion;
   }
 }
 
@@ -229,18 +213,36 @@ export function NextButton(): NavButton {
     (fr: FiltrationRecord): CommentThread => {
       const selected = NavButton.startingDiscussionForNavigation(fr);
 
-      let selectedIndex: number;
+      // no element to navigate from
+      if (!selected || !fr.after.elements[0]) {
+        return fr.after.elements[0]; // okay if this is undefined
+      }
 
-      if(!selected){
-         // pretend it's the failure condition of indexOf
-        selectedIndex = -1;
+      // find the CommentThread in fr.after.elements that has a pagePosition
+      // closest to--and after--that of the selected element.
+      const targetPos = selected.getPagePosition();
+
+      const discussionsAfter = fr.after.elements.filter(el => {
+        // If you resolve/remove a discussion, the next discussion
+        // will have the same pagePosition as the previously selected one.
+        // We want to be able to select the next discussion in such a case.
+        // We determine equivalence based on each discussion's element property,
+        // since the discussion itself will have been created anew during the refresh
+        // cycle.
+        return el.element !== selected.element && el.getPagePosition() >= targetPos;
+      });
+
+      // In this sort function, the smallest page position comes earlier
+      // in the array.
+      const discussionToNavigateTo = discussionsAfter.sort((a, b) => {
+        return a.getPagePosition() - b.getPagePosition();
+      })[0];
+      // If there's nowhere to go, stay put
+      if (!discussionToNavigateTo) {
+        return selected;
       }
-      else{
-        selectedIndex = fr.after.elements.map(el=>{ return el.element.innerHTML; }).indexOf(selected.element.innerHTML);
-      }
-      const maxIndex = Math.max(fr.after.elements.length - 1, 0);
-      // Don't try to overshoot the last element
-      return fr.after.elements[Math.min(maxIndex, selectedIndex + 1)];
+
+      return discussionToNavigateTo;
     }
   );
 }
@@ -254,15 +256,37 @@ export function PrevButton(): NavButton {
     (fr: FiltrationRecord): CommentThread => {
       const selected = NavButton.startingDiscussionForNavigation(fr);
 
-      let selectedIndex: number;
-      if(!selected){
-        // pretend it's the failure condition of indexOf
-       selectedIndex = -1;
-     }else{
-       selectedIndex = fr.after.elements.map(el=>{ return el.element.innerHTML; }).indexOf(selected.element.innerHTML);
-     }
+      // no element to navigate from
+      if (!selected || !fr.after.elements[0]) {
+        return fr.after.elements[0]; // okay if this is undefined
+      }
 
-      return fr.after.elements[Math.max(0, selectedIndex - 1)];
+      // find the CommentThread in fr.after.elements that has a pagePosition
+      // closest to--and prior to--that of the selected element.
+      const targetPos = selected.getPagePosition();
+
+      const discussionsBefore = fr.after.elements.filter(el => {
+        // If you resolve/remove a discussion, the next discussion
+        // will have the same pagePosition as the previously selected one.
+        // We want to be able to select the previous discussion in such a case.
+        // We determine equivalence based on each discussion's element property,
+        // since the discussion itself will have been created anew during the refresh
+        // cycle.
+        return el.element !== selected.element && el.getPagePosition() <= targetPos;
+      });
+
+      // In this sort function, the smallest page position comes earlier
+      // in the array.
+      const discussionToNavigateTo =  discussionsBefore.sort((a, b) => {
+        return a.getPagePosition() - b.getPagePosition();
+      })[Math.max(discussionsBefore.length - 1, 0)];
+
+      // If there's nowhere to go, stay put
+      if (!discussionToNavigateTo) {
+        return selected;
+      }
+
+      return discussionToNavigateTo;
     }
   );
 }
@@ -274,9 +298,6 @@ export function FirstButton(): NavButton {
   return new NavButton(
     "First",
     (fr: FiltrationRecord): CommentThread => {
-      // Ensure that the ThreadCollection's elements are ordered
-      // in their original sequence.
-      fr.after.orderByAppearanceInPage();
       return fr.after.elements[0];
     }
   );
@@ -289,9 +310,6 @@ export function LastButton(): NavButton {
   return new NavButton(
     "Last",
     (fr: FiltrationRecord): CommentThread => {
-      // Ensure that the ThreadCollection's elements are ordered
-      // in their original sequence.
-      fr.after.orderByAppearanceInPage();
       return fr.after.elements[Math.max(0, fr.after.elements.length - 1)];
     }
   );

@@ -2,9 +2,7 @@ import { NavigatorControl } from "./navigator-control";
 import { FiltrationRecord } from "../filter/filtration-record";
 import { FilterCollection } from "../filter/filter-collection";
 import { ParseForThreads } from "../thread/thread-collection";
-import { CommentThreadOptions } from "../test-utils/mock-html";
 import { CommentThread } from "../thread/comment-thread";
-import { author } from "../constants/selectors";
 
 /**
  * CommentNavigator represents the UI component for the
