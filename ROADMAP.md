@@ -11,13 +11,11 @@
   - Create the GitHub repo (maybe create it as a private repo initially)
   - Push the code and create the first release. You can set up an Action to trigger on release. Creating a release is done through the GitHub UI (https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository), using either an existing git tag or a tag you create.
 
-- Make sure the README is up to snuff
-
-- Fix this bug: If you open the comment history panel with the Comment Navigator script running, an error occurs and the Google Document doesn't load
-
 - Release v1
 
 ## Features for after the MVP
+
+- Fix this bug: If you open the comment history panel with the Comment Navigator script running, an error occurs and the Google Document doesn't load
 
 - Clean up the test fixture interface. We should export as little as possible from `src/lib/test-utils/mock-html.ts`. This will make it easier to standardize fixtures across unit tests as well as between unit tests and e2e tests.
 
