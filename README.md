@@ -4,6 +4,11 @@
 
 A user script for making it easier to manage comments and suggestions in Google Docs. After the first draft, most of the work you put into writing goes into responding to comments. This tool helps you estimate the work you'll need to address feedback and triage your work effectively.
 
+## How can I install it?
+
+1. Install the [Tampermonkey extension](https://www.tampermonkey.net/) for your browser.
+2. The userscript will be available [at this gist](https://gist.github.com/ptgott/347ed3996298c77892d7fd76c7228c41).
+
 ## Why isn't it a Google Docs add-on?
 
 We really wish it could be! Google Docs add-ons don't yet have a good way to deal with comments in suggestion threads, even though these discussions can get just as heated as those in regular comment threads. Suggested insertions are shown along with final text in a document's [content JSON](https://developers.google.com/docs/api/how-tos/suggestions). `Paragraph` objects within the response to `document.get()` include `TextRun` objects (https://developers.google.com/docs/api/reference/rest/v1/documents#TextRun), which include `suggestedInsertionIds[]` and `suggestedDeletionIds[]` as properties. But these don't currently point to anything else. Let us know when they do!
@@ -21,4 +26,4 @@ To stage a full version of the user script so you can try out your changes befor
 
 ## Releasing
 
-Releasing the user script means uploading to a domain where it will be available to clients as a static JS file. Anyone who has copied the user script to Tampermonkey or similar should be able to access updates through their user script manager. We use GitHub Actions to edit a public gist when we release a new version of the comment navigator.
+We use [GitHub Actions](https://github.com/features/actions) to edit the gist where this userscript is available when we release a new version of the comment navigator.

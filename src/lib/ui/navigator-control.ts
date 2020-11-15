@@ -20,7 +20,7 @@ import { FilterCollection } from "../filter/filter-collection";
 export abstract class NavigatorControl {
   abstract wrapper: HTMLElement;
 
-  constructor() { }
+  constructor() {}
 
   /**
    * render produces the DOM element that does the work of the
@@ -222,14 +222,16 @@ export function NextButton(): NavButton {
       // closest to--and after--that of the selected element.
       const targetPos = selected.getPagePosition();
 
-      const discussionsAfter = fr.after.elements.filter(el => {
+      const discussionsAfter = fr.after.elements.filter((el) => {
         // If you resolve/remove a discussion, the next discussion
         // will have the same pagePosition as the previously selected one.
         // We want to be able to select the next discussion in such a case.
         // We determine equivalence based on each discussion's element property,
         // since the discussion itself will have been created anew during the refresh
         // cycle.
-        return el.element !== selected.element && el.getPagePosition() >= targetPos;
+        return (
+          el.element !== selected.element && el.getPagePosition() >= targetPos
+        );
       });
 
       // In this sort function, the smallest page position comes earlier
@@ -265,19 +267,21 @@ export function PrevButton(): NavButton {
       // closest to--and prior to--that of the selected element.
       const targetPos = selected.getPagePosition();
 
-      const discussionsBefore = fr.after.elements.filter(el => {
+      const discussionsBefore = fr.after.elements.filter((el) => {
         // If you resolve/remove a discussion, the next discussion
         // will have the same pagePosition as the previously selected one.
         // We want to be able to select the previous discussion in such a case.
         // We determine equivalence based on each discussion's element property,
         // since the discussion itself will have been created anew during the refresh
         // cycle.
-        return el.element !== selected.element && el.getPagePosition() <= targetPos;
+        return (
+          el.element !== selected.element && el.getPagePosition() <= targetPos
+        );
       });
 
       // In this sort function, the smallest page position comes earlier
       // in the array.
-      const discussionToNavigateTo =  discussionsBefore.sort((a, b) => {
+      const discussionToNavigateTo = discussionsBefore.sort((a, b) => {
         return a.getPagePosition() - b.getPagePosition();
       })[Math.max(discussionsBefore.length - 1, 0)];
 

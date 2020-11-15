@@ -26,11 +26,17 @@ let headerDoc = yaml.safeLoad(
 // Dynamically add the source header using an environment variable.
 // Intended to be used after retrieving the URL of the gist
 // dynamically.
-// There's a risk of state pollution, but there's not really a
-// great way to pass state to a webpack config in the middle
-// of a script.
 if (process.env.gistUrl) {
   headerDoc.source = process.env.gistUrl;
+}
+
+// When releasing, use the GITHUB_REF env var to set the version header of the 
+// userscript. See:
+// https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release
+if (process.env.GITHUB_REF) {
+  // Throws an error if GITHUB_REF doesn't include a number. It should, since
+  // it will be a version-based tag.
+  headerDoc.version = process.env.GITHUB_REF.match(/[0-9\.]+/)[0];
 }
 
 // Build the user script headers from headerDoc

@@ -1,20 +1,5 @@
 # ROADMAP
 
-## Next up in the MVP (by priority)
-
-- Set up a release process by configuring a GitHub action to sync with a public gist on release. GitHub Actions is free for public repos (https://github.com/features/actions).
-
-  - Figure out how to make a GitHub token safely available to the GitHub Action (i.e., without hardcoding it into the repo).
-  - Figure out how to populate the user script with the current version number.
-  - Set up this GitHub Action (https://github.com/marketplace/actions/gist-sync) to sync the gist with the latest bundle. (The Action is actually pretty simple and uses a bash script to run `curl` against the GitHub API! Like all Actions, it runs in a Docker container). **Trigger the Action when a GitHub release is created!**
-  - Determine how to populate the `@source`, `@updateURL`, and `@downloadURL` user script headers (https://www.tampermonkey.net/documentation.php)
-  - Create the GitHub repo (maybe create it as a private repo initially)
-  - Push the code and create the first release. You can set up an Action to trigger on release. Creating a release is done through the GitHub UI (https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository), using either an existing git tag or a tag you create.
-
-- Release v1
-
-## Features for after the MVP
-
 - Fix this bug: If you open the comment history panel with the Comment Navigator script running, an error occurs and the Google Document doesn't load
 
 - Clean up the test fixture interface. We should export as little as possible from `src/lib/test-utils/mock-html.ts`. This will make it easier to standardize fixtures across unit tests as well as between unit tests and e2e tests.

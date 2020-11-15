@@ -161,15 +161,19 @@ export class CommentNavigator {
     // but still selected.
     const st = threadsBefore.getSelectedThread();
 
-    
-    if(!!st){
+    if (!!st) {
       this.previouslySelectedThread = st;
     }
 
     const fc = this.readFilters();
     const threadsAfter = fc.use(threadsBefore);
     this.refresh(
-      new FiltrationRecord(threadsBefore, threadsAfter, fc, this.previouslySelectedThread)
+      new FiltrationRecord(
+        threadsBefore,
+        threadsAfter,
+        fc,
+        this.previouslySelectedThread
+      )
     );
   }
 

@@ -60,16 +60,18 @@ describe("ThreadCount", () => {
   test("should show the ratio of filtered threads on refresh", () => {
     const threads = new Array(4);
     for (let i = 0; i < threads.length; i++) {
-      threads[i] = "<div id ='context'>" + MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [
-          {
-            author: "Paul Gottschling",
-            text: "This is a reply",
-          },
-        ],
-      });
+      threads[i] =
+        "<div id ='context'>" +
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [
+            {
+              author: "Paul Gottschling",
+              text: "This is a reply",
+            },
+          ],
+        });
     }
     document.body.innerHTML = threads.join("\n");
 
@@ -112,14 +114,17 @@ describe("NavButton", () => {
   });
 
   test("dispatches a click to the expected thread", () => {
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [],
-        isActive: true,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: true,
+        }),
+      ].join("\n") +
+      "</div>";
 
     document.body.appendChild(testNavButton.render());
     const tc = ParseForThreads(document.querySelector("#context"));
@@ -149,26 +154,29 @@ describe("NavButton", () => {
 describe("NextButton", () => {
   test("points to the correct target thread", () => {
     const expectedText = "This is a third thread";
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a second thread",
-        replies: [],
-        isActive: true,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: expectedText,
-        replies: [],
-        isActive: false,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a second thread",
+          replies: [],
+          isActive: true,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: expectedText,
+          replies: [],
+          isActive: false,
+        }),
+      ].join("\n") +
+      "</div>";
     const tc = ParseForThreads(document.querySelector("#context"));
     const nb = NextButton();
     const fc = new FilterCollection([], "AND");
@@ -195,32 +203,35 @@ describe("NextButton", () => {
     ];
 
     // No active threads
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a second thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: "This is a third thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockSuggestionThread({
-        author: "Example athor",
-        text: "This is also text",
-        replies: [],
-        isActive: false,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a second thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: "This is a third thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockSuggestionThread({
+          author: "Example athor",
+          text: "This is also text",
+          replies: [],
+          isActive: false,
+        }),
+      ].join("\n") +
+      "</div>";
 
     cases.forEach((c) => {
       const tc = ParseForThreads(document.querySelector("#context"));
@@ -239,26 +250,29 @@ describe("NextButton", () => {
 describe("PrevButton", () => {
   test("points to the correct target thread", () => {
     const expectedText = "This is a thread";
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: expectedText,
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a second thread",
-        replies: [],
-        isActive: true,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: "This is a third thread",
-        replies: [],
-        isActive: false,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: expectedText,
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a second thread",
+          replies: [],
+          isActive: true,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: "This is a third thread",
+          replies: [],
+          isActive: false,
+        }),
+      ].join("\n") +
+      "</div>";
     const tc = ParseForThreads(document.querySelector("#context"));
     const pb = PrevButton();
     const fc = new FilterCollection([], "AND");
@@ -285,32 +299,35 @@ describe("PrevButton", () => {
     ];
 
     // No active threads
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a second thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: "This is a third thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockSuggestionThread({
-        author: "Example athor",
-        text: "This is also text",
-        replies: [],
-        isActive: false,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a second thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: "This is a third thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockSuggestionThread({
+          author: "Example athor",
+          text: "This is also text",
+          replies: [],
+          isActive: false,
+        }),
+      ].join("\n") +
+      "</div>";
 
     cases.forEach((c) => {
       const tc = ParseForThreads(document.querySelector("#context"));
@@ -329,26 +346,29 @@ describe("PrevButton", () => {
 describe("FirstButton", () => {
   test("points to the correct target thread", () => {
     const expectedText = "This is a thread";
-    document.body.innerHTML = "<div id ='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: expectedText,
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a second thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: "This is a third thread",
-        replies: [],
-        isActive: true,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id ='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: expectedText,
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a second thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: "This is a third thread",
+          replies: [],
+          isActive: true,
+        }),
+      ].join("\n") +
+      "</div>";
     const tc = ParseForThreads(document.querySelector("#context"));
     const pb = FirstButton();
     const fc = new FilterCollection([], "AND");
@@ -363,26 +383,29 @@ describe("FirstButton", () => {
 describe("LastButton", () => {
   test("points to the correct target thread", () => {
     const expectedText = "This is a thread";
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a first thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a second thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: expectedText,
-        replies: [],
-        isActive: true,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a first thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a second thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: expectedText,
+          replies: [],
+          isActive: true,
+        }),
+      ].join("\n") +
+      "</div>";
     const tc = ParseForThreads(document.querySelector("#context"));
     const pb = LastButton();
     const fc = new FilterCollection([], "AND");
@@ -399,31 +422,34 @@ describe("AuthorSelectBox", () => {
   let tc: ThreadCollection, asb: AuthorSelectBox, fr, box: HTMLElement;
 
   beforeEach(() => {
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a first thread",
-        replies: [
-          {
-            author: "Foo Bar",
-            text: "Replying to my own thread",
-          },
-        ],
-        isActive: false,
-      }),
-      MockCommentThread({
-        author: "Blah Blah",
-        text: "This is a second thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockSuggestionThread({
-        author: "Example User",
-        text: "This is a third thread",
-        replies: [],
-        isActive: true,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a first thread",
+          replies: [
+            {
+              author: "Foo Bar",
+              text: "Replying to my own thread",
+            },
+          ],
+          isActive: false,
+        }),
+        MockCommentThread({
+          author: "Blah Blah",
+          text: "This is a second thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockSuggestionThread({
+          author: "Example User",
+          text: "This is a third thread",
+          replies: [],
+          isActive: true,
+        }),
+      ].join("\n") +
+      "</div>";
     tc = ParseForThreads(document.querySelector("#context"));
     asb = new AuthorSelectBox();
     fr = new FiltrationRecord(tc, tc, null, null);
@@ -471,20 +497,23 @@ describe("AuthorSelectBox", () => {
   test("updates when conversations change", () => {
     // Change the comment HTML after the initial
     // select box refresh
-    document.body.innerHTML = "<div id ='context'>" + [
-      MockCommentThread({
-        author: "Fake User",
-        text: "This is a first thread",
-        replies: [],
-        isActive: false,
-      }),
-      MockSuggestionThread({
-        author: "Example User",
-        text: "This is a third thread",
-        replies: [],
-        isActive: true,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id ='context'>" +
+      [
+        MockCommentThread({
+          author: "Fake User",
+          text: "This is a first thread",
+          replies: [],
+          isActive: false,
+        }),
+        MockSuggestionThread({
+          author: "Example User",
+          text: "This is a third thread",
+          replies: [],
+          isActive: true,
+        }),
+      ].join("\n") +
+      "</div>";
     const tc2 = ParseForThreads(document.querySelector("#context"));
     const fr2 = new FiltrationRecord(tc2, tc2, null, null);
     // Second refresh after the beforeEach block

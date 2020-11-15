@@ -1,0 +1,29 @@
+name: gist-sync-prod
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  # https://github.com/marketplace/actions/gist-sync
+  gist-sync:
+    name: gist-sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "13"
+      - run: npm install
+      # Note that this will write to the usual build path, even though the final
+      # build artefact won't be checked into version control.
+      - run: npx webpack
+      - uses: popsiclestick/gist-sync-action@v1.1
+        id: sync
+        with:
+          auth: ${{ secrets.COMMENT_NAV_GIST_TOKEN_PROD }}
+          gist_url: https://gist.github.com/ptgott/347ed3996298c77892d7fd76c7228c41
+          gist_title: Google Docs Comment Navigator
+          gist_description: A userscript for managing discussions in Google Docs
+          github_file: static/js_dist/bundle.js

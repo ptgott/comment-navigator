@@ -451,15 +451,14 @@ describe("The navigation buttons", () => {
     }
   });
 
-  test('if you resolve/accept/reject the only discussion that matches filters, then navigate to the previous thread, there shouldn\'t be an error', async () => {
-
+  test("if you resolve/accept/reject the only discussion that matches filters, then navigate to the previous thread, there shouldn't be an error", async () => {
     // 1. Enter search criteria
     await page.type(
       `${navigatorSelector} input[name="regexpSearch"]`,
       "good" // With the current fixture, this filter produces one result
-      );
-      await sleep(300);
-  
+    );
+    await sleep(300);
+
     // 2.
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
@@ -477,13 +476,13 @@ describe("The navigation buttons", () => {
     return clickNavButton(SELECTOR_PREV);
   });
 
-  test("if all discussions are inactive, navigating to the next discussion matching filter criteria shouldn't skip a discussion", async ()=>{
+  test("if all discussions are inactive, navigating to the next discussion matching filter criteria shouldn't skip a discussion", async () => {
     // 1. Enter search criteria
     await page.type(
       `${navigatorSelector} input[name="regexpSearch"]`,
       // Looking for any discussion that includes a literal "?" character.
       // This should filter to 3/5 discussions
-      '\\?' 
+      "\\?"
     );
     await sleep(300);
 
@@ -491,26 +490,26 @@ describe("The navigation buttons", () => {
     // within all discussion threads.
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
-    
-    // 3. 
+
+    // 3.
     await deactivateThreads();
-    
+
     // 4.
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
-    
+
     // We should navigate to the discussion with index 3 (among all discussions,
     // unfiltered)
     expect(await getActiveThreadIndex()).toEqual(3);
   });
 
-  test("if all discussions are inactive, navigating to the previous discussion matching filter criteria shouldn't skip a discussion", async ()=>{
+  test("if all discussions are inactive, navigating to the previous discussion matching filter criteria shouldn't skip a discussion", async () => {
     // 1. Enter search criteria
     await page.type(
       `${navigatorSelector} input[name="regexpSearch"]`,
       // Looking for any discussion that includes a literal "?" character.
       // This should filter to 3/5 discussions
-      '\\?' 
+      "\\?"
     );
     await sleep(300);
 
@@ -518,10 +517,10 @@ describe("The navigation buttons", () => {
     // This should be the final discussion.
     await clickNavButton(SELECTOR_LAST);
     await sleep(300);
-    
-    // 3. 
+
+    // 3.
     await deactivateThreads();
-        
+
     // 4.
     await clickNavButton(SELECTOR_PREV);
     await sleep(300);
@@ -531,34 +530,34 @@ describe("The navigation buttons", () => {
     expect(await getActiveThreadIndex()).toEqual(3);
   });
 
-  test("if you resolve the > 1st discussion matching criteria, clicking \"next\" should take you to the next discussion", async ()=>{
+  test('if you resolve the > 1st discussion matching criteria, clicking "next" should take you to the next discussion', async () => {
     // 1. Enter search criteria
     await page.type(
       `${navigatorSelector} input[name="regexpSearch"]`,
       // Looking for any discussion that includes a literal "?" character.
       // This should filter to 3/5 discussions
-      '\\?' 
+      "\\?"
     );
     await sleep(300);
 
     // 2. Navigate to a discussion after the first that matches the criteria
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
-    
+
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
-    
+
     // 3. resolve the discussion
     await resolveDiscussion(await getActiveThreadIndex());
     await sleep(300);
-    
+
     // 4. Navigate to the next discussion. If we're breezing through a document
     // responding to discussion threads, we'd expect this to take us to the final
     // discussion in the document, rather than reversing our course and taking us
     // to the first discussion.
     await clickNavButton(SELECTOR_NEXT);
     await sleep(300);
-    
+
     // We should be at the final discussion in the list, which now has the
     // index 3, rather than 4, since one discussion was resolved.
     expect(await getActiveThreadIndex()).toEqual(3);

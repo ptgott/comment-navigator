@@ -1,12 +1,7 @@
-#########################################
-# Headers used in the final user script #
-#                                       #
-# Note that the source header is added  #
-# at build time.                        #
-#########################################
+# Headers used in the final user script
+# Some are added at build time (e.g. version)--see the webpack config
 
 name: "Google Docs Comment Navigator"
-version: 0.1.0
 author: "Paul Gottschling and contributors"
 copyright: Paul Gottschling
 
@@ -22,3 +17,6 @@ run-at: document-end
 # Disable the sandbox and run the script within the page content
 # https://www.tampermonkey.net/documentation.php#_grant
 grant: none
+
+# https://www.tampermonkey.net/documentation.php#_homepage
+source: https://github.com/ptgott/comment-navigator

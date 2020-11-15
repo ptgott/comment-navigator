@@ -12,9 +12,11 @@ import { CommentThread } from "./comment-thread";
  * @returns {ThreadCollection}
  */
 export function ParseForThreads(context: HTMLElement): ThreadCollection {
-  if(!context){
+  if (!context) {
     // to avoid a slightly more mysterious error when we define discussionElements
-    throw new Error("the context given to ParseForThreads is null or undefined");
+    throw new Error(
+      "the context given to ParseForThreads is null or undefined"
+    );
   }
 
   const discussionElements = [...context.querySelectorAll(selectors.thread)];
@@ -42,7 +44,7 @@ export class ThreadCollection {
   constructor(elements: Array<CommentThread>) {
     // ensure elements are sorted with the highest Y coordinate first,
     // making earlier items in the list higher on the page.
-    this.elements = elements.sort((a, b)=>{
+    this.elements = elements.sort((a, b) => {
       return a.getPagePosition() - b.getPagePosition();
     });
   }
@@ -70,5 +72,4 @@ export class ThreadCollection {
       );
     });
   }
-
 }

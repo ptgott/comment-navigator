@@ -8,7 +8,7 @@ import {
   MockSuggestionThread,
   MockCommentThread,
 } from "../test-utils/mock-html";
-import { author } from "../constants/selectors"
+import { author } from "../constants/selectors";
 
 beforeEach(() => {
   document.body.innerHTML = "";
@@ -104,24 +104,27 @@ describe("CommentNavigator", () => {
 
   test("readAndRefresh assigns previouslySelectedThread if a thread is selected", () => {
     const expectedIndex = 2;
-    document.body.innerHTML = "<div id='context'>" + [
-      MockSuggestionThread({
-        author: "Example Author 1",
-        text: "Example text",
-        replies: [],
-      }),
-      MockCommentThread({
-        author: "Example Author 2",
-        text: "Example text",
-        replies: [],
-      }),
-      MockCommentThread({
-        author: "Example Author 3",
-        text: "Example text",
-        replies: [],
-        isActive: true,
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockSuggestionThread({
+          author: "Example Author 1",
+          text: "Example text",
+          replies: [],
+        }),
+        MockCommentThread({
+          author: "Example Author 2",
+          text: "Example text",
+          replies: [],
+        }),
+        MockCommentThread({
+          author: "Example Author 3",
+          text: "Example text",
+          replies: [],
+          isActive: true,
+        }),
+      ].join("\n") +
+      "</div>";
 
     const n = new CommentNavigator(
       [
@@ -136,10 +139,16 @@ describe("CommentNavigator", () => {
 
     n.render(document.body);
     n.readAndRefresh();
-    
+
     // Comparing text contents to circumvent JavaScript object equivalence
     // weirdness
-    expect(tc.elements.map(el=>{return el.element.textContent}).indexOf(n.previouslySelectedThread.element.textContent)).toEqual(expectedIndex);
+    expect(
+      tc.elements
+        .map((el) => {
+          return el.element.textContent;
+        })
+        .indexOf(n.previouslySelectedThread.element.textContent)
+    ).toEqual(expectedIndex);
   });
 
   test("minimize does not remove subcomponents from the DOM", (done) => {

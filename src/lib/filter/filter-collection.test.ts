@@ -19,52 +19,55 @@ interface testCase {
 }
 
 beforeEach(() => {
-  document.body.innerHTML = "<div id='context'>" + [
-    MockSuggestionThread({
-      author: "Foo Bar",
-      text: "This is a comment",
-      replies: [
-        {
-          author: "Fake Name",
-          text: "Fake comment",
-        },
-        {
-          author: "Blah Blah",
-          text: "This is the final response",
-        },
-      ],
-    }),
-    MockCommentThread({
-      author: "Example",
-      text: "This is a comment",
-      replies: [
-        {
-          author: "Foo Bar",
-          text: "This is a response!",
-        },
-      ],
-    }),
-    MockSuggestionThread({
-      author: "Bar Baz",
-      text: "This is a suggestion",
-      replies: [
-        {
-          author: "Blah Blah",
-          text: "Example",
-        },
-      ],
-    }),
-    MockSuggestionThread({
-      author: "Bar Baz",
-      text: "This is a suggestion",
-      replies: [
-        {
-          author: "Foo Bar",
-          text: "This is a response!",
-        },
-      ],
-    }),
-  ].join("\n") + "</div>";
+  document.body.innerHTML =
+    "<div id='context'>" +
+    [
+      MockSuggestionThread({
+        author: "Foo Bar",
+        text: "This is a comment",
+        replies: [
+          {
+            author: "Fake Name",
+            text: "Fake comment",
+          },
+          {
+            author: "Blah Blah",
+            text: "This is the final response",
+          },
+        ],
+      }),
+      MockCommentThread({
+        author: "Example",
+        text: "This is a comment",
+        replies: [
+          {
+            author: "Foo Bar",
+            text: "This is a response!",
+          },
+        ],
+      }),
+      MockSuggestionThread({
+        author: "Bar Baz",
+        text: "This is a suggestion",
+        replies: [
+          {
+            author: "Blah Blah",
+            text: "Example",
+          },
+        ],
+      }),
+      MockSuggestionThread({
+        author: "Bar Baz",
+        text: "This is a suggestion",
+        replies: [
+          {
+            author: "Foo Bar",
+            text: "This is a response!",
+          },
+        ],
+      }),
+    ].join("\n") +
+    "</div>";
 });
 
 describe("FilterCollection", () => {

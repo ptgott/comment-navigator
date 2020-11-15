@@ -10,13 +10,13 @@ beforeEach(() => {
   document.body.innerHTML = "";
 });
 
-describe("ParseForThreads", ()=>{
-  test("throws an error if no discussion context is given", ()=>{
-    expect(()=>{
+describe("ParseForThreads", () => {
+  test("throws an error if no discussion context is given", () => {
+    expect(() => {
       ParseForThreads(null);
     }).toThrowError("context");
-  })
-})
+  });
+});
 
 describe("ThreadCollection", () => {
   interface testCase {
@@ -39,7 +39,8 @@ describe("ThreadCollection", () => {
         ],
       });
     }
-    document.body.innerHTML = "<div id='context'>" + threads.join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" + threads.join("\n") + "</div>";
 
     const coll = ParseForThreads(document.querySelector("#context"));
     expect(coll.elements.length).toEqual(elCount);
@@ -61,32 +62,35 @@ describe("ThreadCollection", () => {
   });
 
   test("returns names of authors for the final comments within comment threads", () => {
-    document.body.innerHTML = "<div id='context'>" + [
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [
-          {
-            author: "Foo Bar",
-            text: "This is a reply",
-          },
-          {
-            author: "Bar Baz",
-            text: "This is a reply",
-          },
-        ],
-      }),
-      MockCommentThread({
-        author: "Foo Bar",
-        text: "This is a thread",
-        replies: [
-          {
-            author: "Blah Blah",
-            text: "This is a reply",
-          },
-        ],
-      }),
-    ].join("\n") + "</div>";
+    document.body.innerHTML =
+      "<div id='context'>" +
+      [
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [
+            {
+              author: "Foo Bar",
+              text: "This is a reply",
+            },
+            {
+              author: "Bar Baz",
+              text: "This is a reply",
+            },
+          ],
+        }),
+        MockCommentThread({
+          author: "Foo Bar",
+          text: "This is a thread",
+          replies: [
+            {
+              author: "Blah Blah",
+              text: "This is a reply",
+            },
+          ],
+        }),
+      ].join("\n") +
+      "</div>";
     const expected: Array<string> = ["Bar Baz", "Blah Blah"];
     const coll = ParseForThreads(document.querySelector("#context"));
     const actual: Array<string> = coll.finalCommentAuthorNames();
@@ -97,26 +101,29 @@ describe("ThreadCollection", () => {
   describe("getSelectedThread", () => {
     test("shows active suggestion threads", () => {
       const desiredAuthor = "IM Active";
-      document.body.innerHTML = "<div id='context'>" + [
-        MockCommentThread({
-          author: "Foo Bar",
-          text: "This is a thread",
-          replies: [],
-          isActive: false,
-        }),
-        MockSuggestionThread({
-          author: desiredAuthor,
-          text: "This is a thread",
-          replies: [],
-          isActive: true,
-        }),
-        MockSuggestionThread({
-          author: "Foo Bar",
-          text: "This is a thread",
-          replies: [],
-          isActive: false,
-        }),
-      ].join("\n") + "</div>";
+      document.body.innerHTML =
+        "<div id='context'>" +
+        [
+          MockCommentThread({
+            author: "Foo Bar",
+            text: "This is a thread",
+            replies: [],
+            isActive: false,
+          }),
+          MockSuggestionThread({
+            author: desiredAuthor,
+            text: "This is a thread",
+            replies: [],
+            isActive: true,
+          }),
+          MockSuggestionThread({
+            author: "Foo Bar",
+            text: "This is a thread",
+            replies: [],
+            isActive: false,
+          }),
+        ].join("\n") +
+        "</div>";
 
       const col = ParseForThreads(document.querySelector("#context"));
       expect(col.getSelectedThread().element.textContent).toContain(
@@ -126,26 +133,29 @@ describe("ThreadCollection", () => {
 
     test("shows active comment threads", () => {
       const desiredAuthor = "IM Active";
-      document.body.innerHTML = "<div id='context'>" + [
-        MockCommentThread({
-          author: "Foo Bar",
-          text: "This is a thread",
-          replies: [],
-          isActive: false,
-        }),
-        MockCommentThread({
-          author: desiredAuthor,
-          text: "This is a thread",
-          replies: [],
-          isActive: true,
-        }),
-        MockSuggestionThread({
-          author: "Foo Bar",
-          text: "This is a thread",
-          replies: [],
-          isActive: false,
-        }),
-      ].join("\n") + "</div>";
+      document.body.innerHTML =
+        "<div id='context'>" +
+        [
+          MockCommentThread({
+            author: "Foo Bar",
+            text: "This is a thread",
+            replies: [],
+            isActive: false,
+          }),
+          MockCommentThread({
+            author: desiredAuthor,
+            text: "This is a thread",
+            replies: [],
+            isActive: true,
+          }),
+          MockSuggestionThread({
+            author: "Foo Bar",
+            text: "This is a thread",
+            replies: [],
+            isActive: false,
+          }),
+        ].join("\n") +
+        "</div>";
 
       const col = ParseForThreads(document.querySelector("#context"));
       expect(col.getSelectedThread().element.textContent).toContain(
