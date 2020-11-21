@@ -66,7 +66,8 @@ document
   .forEach((el) => {
     (el as HTMLElement).style.cursor = "pointer";
     el.addEventListener("click", (e: MouseEvent) => {
-      (e.target as HTMLElement).parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement // div.docos-anchoredreplyview-buttonholder.hide-on-readonly // div.docos-anchoredreplyview-header // div.docos-anchoredreplyview.docos-replyview-first.docos-replyview-comment // div.docos-docoview-rootreply // div.docos-anchoreddocoview-content.docos-docoview-replycontainer // div.docos-anchoreddocoview-internal // div.docos-docoview-tesla-conflict.docos-docoview-resolve-button-visible.docos-anchoreddocoview
+      // This parent element progression is really ugly but gets us to the outer discussion thread wrapper
+      (e.target as HTMLElement).parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement
         .remove();
     });
   });
@@ -77,7 +78,10 @@ document
   .forEach((el) => {
     (el as HTMLElement).style.cursor = "pointer";
     el.addEventListener("click", (e) => {
-      (e.target as HTMLElement).parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement // svg // div.docos-anchoredreplyview-buttonholder.hide-on-readonly // div.docos-anchoredreplyview-header // div.docos-anchoredreplyview.docos-replyview-first.docos-replyview-suggest // div.docos-docoview-rootreply // div.docos-anchoreddocoview-content.docos-docoview-replycontainer // div.docos-anchoreddocoview-internal // div.docos-docoview-tesla-conflict.docos-anchoreddocoview
+      // This parent element progression is really ugly but gets us to the outer discussion thread wrapper.
+      // Note that since you'd be clicking on an SVG element, the path to the outer
+      // discussion wrapper is different than the one for resolving a discussion thread.
+      (e.target as HTMLElement).parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement
         .remove();
     });
   });

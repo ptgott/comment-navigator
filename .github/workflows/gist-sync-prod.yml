@@ -12,9 +12,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "13"
       - run: npm install
       # Note that this will write to the usual build path, even though the final
       # build artefact won't be checked into version control.

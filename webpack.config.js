@@ -64,6 +64,8 @@ module.exports = {
       new TerserPlugin({
         terserOptions: {
           output: {
+            // Don't remove whitespace
+            beautify: true,
             // Add the user script banner.
             preamble: stripIndents`
             // ==UserScript==
