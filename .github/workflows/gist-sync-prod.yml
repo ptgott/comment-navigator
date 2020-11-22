@@ -16,7 +16,7 @@ jobs:
       # Note that this will write to the usual build path, even though the final
       # build artefact won't be checked into version control.
       - run: npx webpack
-      - uses: popsiclestick/gist-sync-action@v1.1
+      - uses: popsiclestick/gist-sync-action@v1.2.0
         id: sync
         with:
           auth: ${{ secrets.COMMENT_NAV_GIST_TOKEN_PROD }}
